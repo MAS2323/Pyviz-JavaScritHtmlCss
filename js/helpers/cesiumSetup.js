@@ -1,4 +1,20 @@
-document.addEventListener("DOMContentLoaded", () => {
+// cesiumSetup.js
+
+// Configuración de Tianditu y otros parámetros
+const token = "ac3385d7bfe8301140eb2c35b0e415ee";
+const tdtUrl = "https://t{s}.tianditu.gov.cn/";
+const subdomains = ["0", "1", "2", "3", "4", "5", "6", "7"];
+const createImageryProvider = (layerType) => {
+  return new Cesium.UrlTemplateImageryProvider({
+    url: `${tdtUrl}DataServer?T=${layerType}&x={x}&y={y}&l={z}&tk=${token}`,
+    subdomains: subdomains,
+    tilingScheme: new Cesium.WebMercatorTilingScheme(),
+    maximumLevel: 18,
+  });
+};
+
+// Inicialización del viewer de Cesium
+export const initializeViewer = () => {
   const cesiumContainer = document.getElementById("cesiumContainer");
 
   if (!cesiumContainer) {
@@ -7,18 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     return;
   }
-  // Configuración de Tianditu
-  const token = "ac3385d7bfe8301140eb2c35b0e415ee";
-  const tdtUrl = "https://t{s}.tianditu.gov.cn/";
-  const subdomains = ["0", "1", "2", "3", "4", "5", "6", "7"];
-  const createImageryProvider = (layerType) => {
-    return new Cesium.UrlTemplateImageryProvider({
-      url: `${tdtUrl}DataServer?T=${layerType}&x={x}&y={y}&l={z}&tk=${token}`,
-      subdomains: subdomains,
-      tilingScheme: new Cesium.WebMercatorTilingScheme(),
-      maximumLevel: 18,
-    });
-  };
 
   // Configurar el token de Cesium Ion
   Cesium.Ion.defaultAccessToken =
@@ -41,6 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
     viewer.imageryLayers.addImageryProvider(imageProviderUno);
     viewer.imageryLayers.addImageryProvider(imageProviderDos);
     viewer.imageryLayers.addImageryProvider(imageProviderTres);
+    viewer.scene.screenSpaceCameraController.zoomFactor = 1.1; // Controla la velocidad del zoom
+    viewer.scene.screenSpaceCameraController.minimumZoomDistance = 500000; // Establece el mínimo zoom (en metros)
+    viewer.scene.screenSpaceCameraController.maximumZoomDistance = 5000000; // Establece el máximo zoom (en metros)
 
     console.log("Cesium Viewer cargado correctamente");
 
@@ -75,10 +82,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     viewer.camera.moveEnd.addEventListener(updateCameraInfo);
     updateCameraInfo();
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(105.0, 35.0, 2000000),
+      duration: 3, // tiempo en segundos para el movimiento
+    });
 
-    // Exportar el viewer
-    window.viewer = viewer;
+    return viewer;
   } catch (error) {
     console.error("Error al inicializar Cesium:", error);
   }
-});
+};
