@@ -19,31 +19,49 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <!-- Toolbar -->
-    <!-- <input type="text" class="search-bar" placeholder="Search the Earth" /> -->
-    <div class="toolbar">
-      <div class="search-container" id="cesiumGeocoder"></div>
-      <div class="toolbar-icons"></div>
+    <!-- Contenido Principal (oculto por defecto) -->
+    <div id="mainContent">
+      <!-- Toolbar -->
+      <!-- <input type="text" class="search-bar" placeholder="Search the Earth" /> -->
+      <div class="toolbar">
+        <div class="search-container" id="cesiumGeocoder"></div>
+        <div class="toolbar-icons"></div>
+      </div>
+
+      <!-- Pop-up -->
+      <div class="popup">
+        <p>Find and manage all your projects in Cesium.</p>
+        <button>Dismiss</button>
+      </div>
+      <div id="baseLayerContainer" class="base-layer-picker"></div>
+
+      <!-- Cesium Container -->
+      <div id="cesiumContainer"></div>
+
+      <!-- floating-buttons -->
+      <div class="floating-buttons">
+        <button id="modeToggle"><i class="fas fa-globe"></i></button>
+        <button id="pinButton"><i class="fas fa-map-pin"></i></button>
+        <button id="rulerButton"><i class="fas fa-ruler"></i></button>
+      </div>
     </div>
-
-    <!-- Pop-up -->
-    <div class="popup">
-      <p>Find and manage all your projects in Cesium.</p>
-      <button>Dismiss</button>
-    </div>
-    <div id="baseLayerContainer" class="base-layer-picker"></div>
-
-    <!-- Cesium Container -->
-    <div id="cesiumContainer"></div>
-
-    <!-- floating-buttons -->
-    <div class="floating-buttons">
-      <button id="modeToggle"><i class="fas fa-globe"></i></button>
-      <button id="pinButton"><i class="fas fa-map-pin"></i></button>
-      <button id="rulerButton"><i class="fas fa-ruler"></i></button>
+    <!-- Pantalla de Inicio de Sesión -->
+    <div id="loginContainer" class="login-screen">
+      <h2>Iniciar Sesión</h2>
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="Usuario" required />
+        <input
+          type="password"
+          id="password"
+          placeholder="Contraseña"
+          required
+        />
+        <button type="submit">Ingresar</button>
+      </form>
     </div>
 
     <!-- Footer -->
+    <button id="logoutButton">Cerrar sesión</button>
     <footer class="cesium-footer">
       <div class="footer-left"><i class="fas fa-layer-group"></i> Layers</div>
       <div class="footer-center">
