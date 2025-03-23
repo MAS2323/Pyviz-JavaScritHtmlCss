@@ -1,4 +1,3 @@
-// Renderizar fibras como líneas entre los nodos
 export const renderFibcabs = (viewer, fibcabs, devices) => {
   const deviceMap = {};
   devices.forEach((device) => {
@@ -17,20 +16,22 @@ export const renderFibcabs = (viewer, fibcabs, devices) => {
     const sourcePosition = Cesium.Cartesian3.fromDegrees(
       parseFloat(sourceDevice.longitude),
       parseFloat(sourceDevice.lattitude),
-      1000
+      0 // Altura 0 para pegar al terreno
     );
     const targetPosition = Cesium.Cartesian3.fromDegrees(
       parseFloat(targetDevice.longitude),
       parseFloat(targetDevice.lattitude),
-      1000
+      0 // Altura 0 para pegar al terreno
     );
 
     viewer.entities.add({
       name: fibcab.tagId,
       polyline: {
         positions: [sourcePosition, targetPosition],
-        width: 2,
-        material: Cesium.Color.BLUE,
+        width: 5, // Aumenta el ancho de la línea
+        clampToGround: true, // Pegar la línea al terreno
+        material: Cesium.Color.BLUE, // Cambia el color para depuración
+        disableDepthTestDistance: Number.POSITIVE_INFINITY, // Hacer que siempre sea visible
       },
     });
   });

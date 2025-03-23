@@ -15,6 +15,7 @@ export const renderDevices = (viewer, devices) => {
       point: {
         pixelSize: 10,
         color: Cesium.Color.RED,
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
       },
       label: {
         text: device.name,
@@ -25,6 +26,8 @@ export const renderDevices = (viewer, devices) => {
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         pixelOffset: new Cesium.Cartesian2(0, -20),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
       },
       data: device, // Almacenar los datos del dispositivo para el popup
     });

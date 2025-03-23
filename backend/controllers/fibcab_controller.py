@@ -47,3 +47,18 @@ def get_fibcab_dev_state(db: Session, sn: str):
     if not db_fibcab_state:
         raise HTTPException(status_code=404, detail="FIBCAB device state not found")
     return db_fibcab_state
+
+
+# Obtener fibras relacionadas con un dispositivo
+def get_fibcabs_for_device(db: Session, device_sn: str):
+    fibcabs = db.query(FibcabDevInfo).filter(
+        (FibcabDevInfo.source_sn == device_sn) | (FibcabDevInfo.target_sn == device_sn)
+    ).all()
+    return fibcabs
+
+# Obtener una fibra por SN
+def get_fibcab_dev_info(db: Session, sn: str):
+    fibcab = db.query(FibcabDevInfo).filter(FibcabDevInfo.sn == sn).first()
+    if not fibcab:
+        raise HTTPException(status_code=404, detail="Fibcab dev info not found")
+    return fibcab

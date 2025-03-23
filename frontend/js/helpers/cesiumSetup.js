@@ -39,14 +39,16 @@ export const initializeViewer = () => {
       animation: false,
       timeline: false,
       geocoder: false,
+      scene3DOnly: true,
       baseLayerPicker: true,
+      terrainExageration: 1.0,
       creditContainer: document.createElement("div"),
     });
     viewer.imageryLayers.addImageryProvider(imageProviderUno);
     viewer.imageryLayers.addImageryProvider(imageProviderDos);
     viewer.imageryLayers.addImageryProvider(imageProviderTres);
     viewer.scene.screenSpaceCameraController.zoomFactor = 1.1; // Controla la velocidad del zoom
-    viewer.scene.screenSpaceCameraController.minimumZoomDistance = 5000; // Establece el mínimo zoom (en metros)
+    viewer.scene.screenSpaceCameraController.minimumZoomDistance = 50000; // Establece el mínimo zoom (en metros)
     viewer.scene.screenSpaceCameraController.maximumZoomDistance = 5000000; // Establece el máximo zoom (en metros)
 
     console.log("Cesium Viewer cargado correctamente");
