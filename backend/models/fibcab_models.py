@@ -32,11 +32,25 @@ class FibcabDevInfo(Base):
         back_populates="fibcab",
         uselist=False  # Indica que es una relación uno a uno
     )
+
+    # Relaciones inversas con FibcabDevConfig y FibcabDevState
+    config = relationship(
+        "FibcabDevConfig",
+        back_populates="fibcab_dev_info",
+        uselist=False  # Relación uno a uno
+    )
+    state = relationship(
+        "FibcabDevState",
+        back_populates="fibcab_dev_info",
+        uselist=False  # Relación uno a uno
+    )
+    
     
     
 class FibcabDevConfig(Base):
     __tablename__ = "fibcab_dev_config"
-    sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)
+    
+    sn = Column(String(50), ForeignKey("fibcab_dev_info.sn"), primary_key=True)  # Cambio aquí
     ficab_capacity = Column(Integer)
     opt1_active_fc_map = Column(String(50))
     opt1_inactive_fic_map = Column(String(50))
@@ -45,10 +59,17 @@ class FibcabDevConfig(Base):
     opt3_connector_loss = Column(Float)
     opt3_splice_loss = Column(Float)
     opt_fibr_tem_state = Column(String(50))
+
+    # Relación inversa con FibcabDevInfo
+    fibcab_dev_info = relationship(
+        "FibcabDevInfo",
+        back_populates="config"
+    )
     
 class FibcabDevState(Base):
     __tablename__ = "fibcab_dev_state"
-    sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)
+    
+    sn = Column(String(50), ForeignKey("fibcab_dev_info.sn"), primary_key=True)  # Cambio aquí
     recordId = Column(Integer, nullable=False)
     health_point = Column(Integer)
     warnings = Column(String(255))
@@ -56,3 +77,9 @@ class FibcabDevState(Base):
     warnlog_url = Column(String(255))
     crislog_url = Column(String(255))
     rawfile_url = Column(String(255))
+
+    # Relación inversa con FibcabDevInfo
+    fibcab_dev_info = relationship(
+        "FibcabDevInfo",
+        back_populates="state"
+    )

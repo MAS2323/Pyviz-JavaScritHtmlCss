@@ -5,13 +5,11 @@ class FibcabDevInfoSchema(BaseModel):
     sn: str
     tagId: Optional[str] = None
     Type: Optional[str] = None
-    device_info: Optional[str] = None
     source_sn: Optional[str] = None
     target_sn: Optional[str] = None
-    source_node: Optional[str] = None
-    target_node: Optional[str] = None
-    fibcab: Optional[int] = None
-    sdh: Optional[str] = None
+    source_city: Optional[str] = None
+    target_city: Optional[str] = None
+
     class Config:
         from_attributes = True
 
@@ -25,6 +23,7 @@ class FibcabDevConfigSchema(BaseModel):
     opt3_connector_loss: Optional[float] = None
     opt3_splice_loss: Optional[float] = None
     opt_fibr_tem_state: Optional[str] = None
+
     class Config:
         from_attributes = True
 

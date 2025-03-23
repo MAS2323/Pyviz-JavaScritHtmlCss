@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from models.fibcab_models import FibcabDevInfo, FibcabDevConfig, FibcabDevState
 from schemas.fibcab_schemas import FibcabDevInfoSchema, FibcabDevConfigSchema, FibcabDevStateSchema
-
+from sqlalchemy.orm import joinedload
 # Crear un registro en fibcab_dev_info
 def create_fibcab_dev_info(db: Session, fibcab_dev_info: FibcabDevInfoSchema):
     db_fibcab_info = FibcabDevInfo(**fibcab_dev_info.dict())
@@ -12,11 +12,12 @@ def create_fibcab_dev_info(db: Session, fibcab_dev_info: FibcabDevInfoSchema):
     return db_fibcab_info
 
 # Obtener un registro de fibcab_dev_info por SN
-def get_fibcab_dev_info(db: Session, sn: str):
-    db_fibcab_info = db.query(FibcabDevInfo).filter(FibcabDevInfo.sn == sn).first()
-    if not db_fibcab_info:
-        raise HTTPException(status_code=404, detail="FIBCAB device info not found")
-    return db_fibcab_info
+def get_fibcab_dev_info(db, sn):
+    fibcab = db.query(FibcabDevInfo).filter(FibcabDevInfo.sn == sn).options(
+        joinedload(FibcabDevInfo.source_node),
+        joinedload(FibcabDevInfo.target_node)
+    ).first()
+    return fibcab
 
 # Crear un registro en fibcab_dev_config
 def create_fibcab_dev_config(db: Session, fibcab_dev_config: FibcabDevConfigSchema):

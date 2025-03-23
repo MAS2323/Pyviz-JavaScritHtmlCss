@@ -38,16 +38,26 @@
       <p>Find and manage all your projects in Cesium.</p>
       <button>Dismiss</button>
     </div>
-    <div id="nodePopup" class="hidden popup">
-      <!-- NodePopup -->
-      <div class="popup-content">
-        <h3 id="nodeName">N/A</h3>
-        <p><strong>City:</strong> <span id="nodeCity">N/A</span></p>
-        <p><strong>Location:</strong> <span id="nodeLocation">N/A</span></p>
-        <p><strong>Producer:</strong> <span id="nodeProducer">N/A</span></p>
-        <button id="closePopup">Dismiss</button>
-      </div>
+
+    <!<!-- Pop-up para la información del nodo -->
+    <div id="nodePopup" class="popup hidden">
+      <h3>Node Information</h3>
+      <p><strong>Name:</strong> <span id="nodeName">N/A</span></p>
+      <p><strong>City:</strong> <span id="nodeCity">N/A</span></p>
+      <p><strong>Location:</strong> <span id="nodeLocation">N/A</span></p>
+      <p><strong>Producer:</strong> <span id="nodeProducer">N/A</span></p>
+      <button id="closeNodePopup">Close</button>
     </div>
+
+    <!-- Pop-up para la información de fibcab -->
+    <div id="fibcabPopup" class="popup hidden">
+      <h3>Fibcab Information</h3>
+      <div id="fibcabContent">
+        <p>Loading...</p>
+      </div>
+      <button id="closeFibcabPopup">Close</button>
+    </div>
+
     <div id="baseLayerContainer" class="base-layer-picker"></div>
 
     <!-- Cesium Container -->
@@ -58,17 +68,6 @@
       <button id="modeToggle"><i class="fas fa-globe"></i></button>
       <button id="pinButton"><i class="fas fa-map-pin"></i></button>
       <button id="rulerButton"><i class="fas fa-ruler"></i></button>
-    </div>
-
-    <!-- Dynamic Popup -->
-    <div id="nodePopup" class="cesium-popup hidden">
-      <div class="popup-content">
-        <h3 id="nodeName">Node Name</h3>
-        <p><strong>City:</strong> <span id="nodeCity">-</span></p>
-        <p><strong>Location:</strong> <span id="nodeLocation">-</span></p>
-        <p><strong>Producer:</strong> <span id="nodeProducer">-</span></p>
-        <button id="closePopup">Close</button>
-      </div>
     </div>
 
     <!-- Footer -->

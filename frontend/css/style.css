@@ -361,7 +361,18 @@ body.logged-in .auth-container {
 .popup button:hover {
   background-color: #777;
 }
+/* Posicionar el popup de Node Information a la derecha */
+/* Posicionar el popup de Node Information a la derecha */
+#nodePopup {
+  right: 20px; /* Posicionado a la derecha */
+  left: auto; /* Asegura que no interfiera con el posicionamiento */
+}
 
+/* Posicionar el popup de Fibcab Information a la izquierda */
+#fibcabPopup {
+  left: 20px; /* Posicionado a la izquierda */
+  right: auto; /* Asegura que no interfiera con el posicionamiento */
+}
 /* Cesium Widget Overrides */
 .cesium-viewer {
   background-color: #1c2526 !important;
