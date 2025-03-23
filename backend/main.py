@@ -12,13 +12,14 @@ from database import Base, engine
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
+origins = [
+    "http://127.0.0.1:5500",  # Origen del frontend
+    "http://localhost:8080",
+]
 # Configurar el middleware CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8080",  # Origen permitido 1
-        "http://localhost:5173",  # Origen permitido 2
-    ],
+    allow_origins=origins,
     allow_credentials=True,  # Permitir credenciales (cookies, headers de autenticación)
     allow_methods=["GET", "POST", "PUT", "DELETE"],  # Métodos HTTP permitidos
     allow_headers=["Content-Type", "Authorization"],  # Headers permitidos

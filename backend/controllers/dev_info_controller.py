@@ -18,6 +18,13 @@ def get_device_info(db: Session, sn: str):
         raise HTTPException(status_code=404, detail="Device info not found")
     return db_device_info
 
+# Obtener todos los registros de device_info
+def get_all_devices(db: Session):
+    db_devices = db.query(DeviceInfo).all()
+    if not db_devices:
+        raise HTTPException(status_code=404, detail="No devices found")
+    return db_devices
+
 # Actualizar un registro en device_info
 def update_device_info(db: Session, sn: str, updated_info: DeviceInfoSchema):
     db_device_info = db.query(DeviceInfo).filter(DeviceInfo.sn == sn).first()

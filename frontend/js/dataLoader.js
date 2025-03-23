@@ -24,7 +24,7 @@ function loadData() {
             color: Cesium.Color.RED,
           },
           label: {
-            text: `Lat: ${point.latitude}, Lon: ${point.longitude}`, // Agrega una etiqueta
+            text: `Lat: ${point.latitude}, Lon: ${point.longitude}`,
             font: "14px sans-serif",
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,

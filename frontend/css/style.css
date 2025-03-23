@@ -518,3 +518,47 @@ body.logged-in .auth-container {
 .auth-container a:hover {
   text-decoration: underline;
 }
+
+/* Popup Styles */
+.cesium-popup {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 15px;
+  border-radius: 5px;
+  z-index: 1000;
+  display: none;
+}
+
+.cesium-popup.hidden {
+  display: none;
+}
+
+.cesium-popup .popup-content {
+  text-align: center;
+}
+
+.cesium-popup h3 {
+  margin: 0 0 10px;
+}
+
+.cesium-popup p {
+  margin: 5px 0;
+}
+
+.cesium-popup button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background: #ff5722;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.cesium-popup button:hover {
+  background: #e64a19;
+}
