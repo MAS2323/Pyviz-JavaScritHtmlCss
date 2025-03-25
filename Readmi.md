@@ -216,3 +216,8 @@ LEFT JOIN
 ### **Conclusión**
 
 Ahora las tablas `fibcab_dev_config` y `fibcab_dev_state` están correctamente vinculadas a `fibcab_dev_info`, y los datos se han insertado sin problemas. Si necesitas más ayuda o ajustes adicionales, no dudes en preguntar. 😊
+
+```http
+http://127.0.0.1:8000/fibcab/dev-config/FIBCAB001
+http://127.0.0.1:8000/fibcab/dev-state/FIBCAB001
+```

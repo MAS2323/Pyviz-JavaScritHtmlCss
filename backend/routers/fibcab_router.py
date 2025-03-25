@@ -51,7 +51,7 @@ def create_fibcab_config(dev_config: FibcabDevConfigSchema, db: Session = Depend
 def read_fibcab_config(sn: str, db: Session = Depends(get_db)):
     fibcab_config = get_fibcab_dev_config(db, sn)
     if not fibcab_config:
-        raise HTTPException(status_code=404, detail="Fibcab dev config not found")
+        raise HTTPException(status_code=404, detail="Fibcab dev config not foundww")
     return fibcab_config
 
 # Rutas para fibcab_dev_state
