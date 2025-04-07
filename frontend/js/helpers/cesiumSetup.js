@@ -13,7 +13,7 @@ export function createImageryProvider(layerType) {
   });
 }
 
-// Función para inicializar el viewer de Cesium
+
 export function initializeViewer() {
   const cesiumContainer = document.getElementById("cesiumContainer");
   if (!cesiumContainer) {
@@ -21,7 +21,6 @@ export function initializeViewer() {
     return null;
   }
 
-  // Inicializar Cesium Viewer sin el token de Cesium Ion
   const viewer = new Cesium.Viewer("cesiumContainer", {
     animation: false,
     timeline: false,

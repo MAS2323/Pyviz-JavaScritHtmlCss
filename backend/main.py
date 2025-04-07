@@ -6,6 +6,7 @@ from routers.fibcab_router import fibcab_router
 from routers.dev_info_router import dev_info_router
 from routers.traffstub_router import traffstub_router
 from routers.jmpmat_router import jmpmat_router
+from routers.pyviz_router import pyviz_router
 from database import Base, engine
 
 # Crear la aplicación FastAPI
@@ -14,7 +15,7 @@ app = FastAPI()
 
 origins = [
     "http://127.0.0.1:5500",  # Origen del frontend
-    "http://localhost:8080",
+    "http://localhost:5173",
 ]
 # Configurar el middleware CORS
 app.add_middleware(
@@ -32,7 +33,7 @@ app.include_router(jmpmat_router)
 app.include_router(sdh_router)
 app.include_router(traffstub_router)
 app.include_router(dev_info_router)
-
+app.include_router(pyviz_router)
 # Ruta de bienvenida
 @app.get("/")
 def read_root():

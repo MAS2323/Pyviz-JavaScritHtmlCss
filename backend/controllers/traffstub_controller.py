@@ -47,3 +47,8 @@ def get_traffstub_dev_state(db: Session, sn: str):
     if not db_traffstub_state:
         raise HTTPException(status_code=404, detail="TRAFFSTUB device state not found")
     return db_traffstub_state
+
+
+# Obtener todos los registros de traffstub_dev_info
+def get_all_traffstub_dev_info(db: Session):
+    return db.query(TraffstubDevInfo).all()

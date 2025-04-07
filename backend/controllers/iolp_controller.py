@@ -47,3 +47,8 @@ def get_iolp_dev_state(db: Session, sn: str):
     if not db_iolp_state:
         raise HTTPException(status_code=404, detail="IOLP device state not found")
     return db_iolp_state
+
+
+# Obtener todos los registros de iolp_dev_info
+def get_all_iolp_dev_info(db: Session):
+    return db.query(IolpDevInfo).all()

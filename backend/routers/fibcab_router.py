@@ -8,6 +8,10 @@ from controllers.fibcab_controller import (
     create_fibcab_dev_state,
     get_fibcab_dev_state,
     get_fibcabs_for_device,  # Nueva función para buscar fibras por dispositivo
+    calculate_fibcab_parameters,
+    identify_bottlenecks,
+    calculate_health_score,
+    get_all_fibcab_dev_info,
 )
 from schemas.fibcab_schemas import (
     FibcabDevInfoSchema,
@@ -65,3 +69,50 @@ def read_fibcab_state(sn: str, db: Session = Depends(get_db)):
     if not fibcab_state:
         raise HTTPException(status_code=404, detail="Fibcab dev state not found")
     return fibcab_state
+
+
+@fibcab_router.get("/calculate/{fibcab_sn}")
+def calculate_fibcab(fibcab_sn: str, db: Session = Depends(get_db)):
+    try:
+        results = calculate_fibcab_parameters(db, fibcab_sn)
+        return results
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+# Endpoint para identificar cuellos de botella
+@fibcab_router.get("/bottlenecks")
+def get_bottlenecks(db: Session = Depends(get_db)):
+    try:
+        bottlenecks = identify_bottlenecks(db)
+        return bottlenecks
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+# Endpoint para identificar cuellos de botella en un dispositivo específico
+@fibcab_router.get("/bottlenecks/{device_sn}")
+def get_bottlenecks_for_device(device_sn: str, db: Session = Depends(get_db)):
+    """
+    Endpoint para obtener los cuellos de botella relacionados con un dispositivo específico.
+    """
+    try:
+        bottlenecks = identify_bottlenecks(db, device_sn)
+        return {"device_sn": device_sn, "bottlenecks": bottlenecks}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@fibcab_router.get("/health-score/")
+def get_health_score(warnings: int = 0, crises: int = 0):
+    """
+    Endpoint para calcular el puntaje de salud basado en advertencias y crisis.
+    """
+    try:
+        health_score = calculate_health_score(warnings, crises)
+        return {"warnings": warnings, "crises": crises, "health_score": health_score}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@fibcab_router.get("/dev-info-all/")
+def read_all_fibcab_devs(db: Session = Depends(get_db)):
+    return get_all_fibcab_dev_info(db)

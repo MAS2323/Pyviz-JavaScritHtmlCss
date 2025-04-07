@@ -7,6 +7,7 @@ from controllers.iolp_controller import (
     get_iolp_dev_config,
     create_iolp_dev_state,
     get_iolp_dev_state,
+    get_all_iolp_dev_info,
 )
 from schemas.iolp_schemas import (
     IolpDevInfoSchema,
@@ -43,3 +44,9 @@ def create_iolp_state(dev_state: IolpDevStateSchema, db: Session = Depends(get_d
 @iolp_router.get("/dev-state/{sn}")
 def read_iolp_state(sn: str, db: Session = Depends(get_db)):
     return get_iolp_dev_state(db, sn)
+
+
+
+@iolp_router.get("/dev-info/")
+def read_all_iolp_devs(db: Session = Depends(get_db)):
+    return get_all_iolp_dev_info(db)

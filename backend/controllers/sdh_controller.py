@@ -47,3 +47,8 @@ def get_sdh_dev_state(db: Session, sn: str):
     if not db_sdh_state:
         raise HTTPException(status_code=404, detail="SDH device state not found")
     return db_sdh_state
+
+
+# Obtener todos los registros de sdh_dev_info
+def get_all_sdh_dev_info(db: Session):
+    return db.query(SdhDevInfo).all()

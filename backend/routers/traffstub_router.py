@@ -7,6 +7,7 @@ from controllers.traffstub_controller import (
     get_traffstub_dev_config,
     create_traffstub_dev_state,
     get_traffstub_dev_state,
+    get_all_traffstub_dev_info,
 )
 from schemas.traffstub_schemas import (
     TraffstubDevInfoSchema,
@@ -43,3 +44,8 @@ def create_traffstub_state(dev_state: TraffstubDevStateSchema, db: Session = Dep
 @traffstub_router.get("/dev-state/{sn}")
 def read_traffstub_state(sn: str, db: Session = Depends(get_db)):
     return get_traffstub_dev_state(db, sn)
+
+
+@traffstub_router.get("/dev-info/", response_model=list[TraffstubDevInfoSchema])
+def read_all_traffstub_devs(db: Session = Depends(get_db)):
+    return get_all_traffstub_dev_info(db)

@@ -37,3 +37,8 @@ def delete_jmpmat(db: Session, gId: int):
     db.delete(db_jmpmat)
     db.commit()
     return {"message": "JMPMAT deleted successfully"}
+
+
+# Obtener todos los registros de jmpmat
+def get_all_jmpmat(db: Session):
+    return db.query(JmpMat).all()

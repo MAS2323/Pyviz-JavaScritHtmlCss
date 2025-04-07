@@ -5,6 +5,7 @@ from controllers.jmpmat_controller import (
     get_jmpmat_by_id,
     update_jmpmat,
     delete_jmpmat,
+    get_all_jmpmat,
 )
 from schemas.jmpmat_schemas import JmpMatSchema
 from database import get_db
@@ -30,3 +31,7 @@ def update_jmpmat_route(gId: int, updated_jmpmat: JmpMatSchema, db: Session = De
 @jmpmat_router.delete("/{gId}")
 def delete_jmpmat_route(gId: int, db: Session = Depends(get_db)):
     return delete_jmpmat(db, gId)
+
+@jmpmat_router.get("/", response_model=list[JmpMatSchema])
+def read_all_jmpmat(db: Session = Depends(get_db)):
+    return get_all_jmpmat(db)

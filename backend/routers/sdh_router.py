@@ -7,6 +7,7 @@ from controllers.sdh_controller import (
     get_sdh_dev_config,
     create_sdh_dev_state,
     get_sdh_dev_state,
+    get_all_sdh_dev_info,
 )
 from schemas.sdh_schemas import (
     SdhDevInfoSchema,
@@ -43,3 +44,8 @@ def create_sdh_state(dev_state: SdhDevStateSchema, db: Session = Depends(get_db)
 @sdh_router.get("/dev-state/{sn}")
 def read_sdh_state(sn: str, db: Session = Depends(get_db)):
     return get_sdh_dev_state(db, sn)
+
+
+@sdh_router.get("/dev-info/")
+def read_all_sdh_devs(db: Session = Depends(get_db)):
+    return get_all_sdh_dev_info(db)
