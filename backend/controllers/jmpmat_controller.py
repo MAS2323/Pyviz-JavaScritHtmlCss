@@ -41,4 +41,17 @@ def delete_jmpmat(db: Session, gId: int):
 
 # Obtener todos los registros de jmpmat
 def get_all_jmpmat(db: Session):
-    return db.query(JmpMat).all()
+    jmpmat_data = db.query(JmpMat).all()
+    serialized_data = [
+        {
+            "gId": row.gId,
+            "actNum": row.actNum,
+            "maxPorts": row.maxPorts,
+            "actMap": row.actMap,
+            "iolp_sn": row.iolp_sn,
+            "sdh_sn": row.sdh_sn,
+            "sn": row.sn,
+        }
+        for row in jmpmat_data
+    ]
+    return serialized_data

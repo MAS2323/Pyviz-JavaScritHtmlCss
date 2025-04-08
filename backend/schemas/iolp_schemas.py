@@ -6,6 +6,7 @@ class IolpDevInfoSchema(BaseModel):
     tagId: Optional[str] = None
     Type: Optional[str] = None
     device_info: Optional[str] = None
+    jmpmat: Optional[str] = None  # Relación inversa con JmpMat
     class Config:
         from_attributes = True  # Reemplaza orm_mode con from_attributes
 

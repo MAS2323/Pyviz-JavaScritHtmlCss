@@ -5,7 +5,7 @@ from database import Base
 class FibcabDevInfo(Base):
     __tablename__ = "fibcab_dev_info"
 
-    sn = Column(String(50), primary_key=True)  # Clave primaria
+    sn = Column(String(50), primary_key=True)
     gId = Column(Integer)
     tagId = Column(String(50))
     Type = Column(String(50))
@@ -17,34 +17,26 @@ class FibcabDevInfo(Base):
     # Relaciones con device_info
     source_node = relationship(
         "DeviceInfo",
-        foreign_keys=[source_sn],  # Especificar la clave foránea
+        foreign_keys=[source_sn],
         back_populates="fibcab_source"
     )
     target_node = relationship(
         "DeviceInfo",
-        foreign_keys=[target_sn],  # Especificar la clave foránea
+        foreign_keys=[target_sn],
         back_populates="fibcab_target"
-    )
-
-    # Relación inversa con JmpMat
-    jmpmat = relationship(
-        "JmpMat",
-        back_populates="fibcab",
-        uselist=False  # Indica que es una relación uno a uno
     )
 
     # Relaciones inversas con FibcabDevConfig y FibcabDevState
     config = relationship(
         "FibcabDevConfig",
         back_populates="fibcab_dev_info",
-        uselist=False  # Relación uno a uno
+        uselist=False
     )
     state = relationship(
         "FibcabDevState",
         back_populates="fibcab_dev_info",
-        uselist=False  # Relación uno a uno
+        uselist=False
     )
-    
     
     
 class FibcabDevConfig(Base):

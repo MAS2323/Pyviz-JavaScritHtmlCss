@@ -11,12 +11,12 @@ class JmpMat(Base):
     actMap = Column(String(255))
 
     # Relación con sdh_dev_info
-    sdh_sn = Column(String(50), ForeignKey("sdh_dev_info.sn"), nullable=False)  # Clave foránea hacia sdh
-    sdh = relationship("SdhDevInfo", back_populates="jmpmat")  # Relación inversa con sdh_dev_info
+    sdh_sn = Column(String(50), ForeignKey("sdh_dev_info.sn"), nullable=False)
+    sdh = relationship("SdhDevInfo", back_populates="jmpmat")
 
-    # Relación con fibcab_dev_info
-    fibcab_sn = Column(String(50), ForeignKey("fibcab_dev_info.sn"), nullable=False)  # Clave foránea hacia fibcab
-    fibcab = relationship("FibcabDevInfo", back_populates="jmpmat")  # Relación inversa con fibcab_dev_info
+    # Relación con iolp_dev_info
+    iolp_sn = Column(String(50), ForeignKey("iolp_dev_info.sn"), nullable=False)
+    iolp = relationship("IolpDevInfo", back_populates="jmpmat")
 
     # Clave foránea hacia device_info
     sn = Column(String(50), ForeignKey("device_info.sn"), nullable=False)

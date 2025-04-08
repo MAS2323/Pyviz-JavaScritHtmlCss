@@ -9,6 +9,14 @@ class IolpDevInfo(Base):
     Type = Column(String(50))
 
     device_info = relationship("DeviceInfo", back_populates="iolp_dev_info")
+    
+    # Nueva relación inversa con JmpMat
+    jmpmat = relationship(
+        "JmpMat",
+        back_populates="iolp",
+        uselist=False
+    )
+    
 
 class IolpDevConfig(Base):
     __tablename__ = "iolp_dev_config"
