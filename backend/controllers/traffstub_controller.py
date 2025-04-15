@@ -51,4 +51,13 @@ def get_traffstub_dev_state(db: Session, sn: str):
 
 # Obtener todos los registros de traffstub_dev_info
 def get_all_traffstub_dev_info(db: Session):
-    return db.query(TraffstubDevInfo).all()
+    traffstub_data = db.query(TraffstubDevInfo).all()
+    serialized_data = [
+        {
+            "sn": row.sn,
+            "tagId": row.tagId,
+            "Type": row.Type,
+        }
+        for row in traffstub_data
+    ]
+    return serialized_data

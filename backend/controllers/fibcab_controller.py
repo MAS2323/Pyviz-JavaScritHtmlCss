@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from models.fibcab_models import FibcabDevInfo, FibcabDevConfig, FibcabDevState
 from schemas.fibcab_schemas import FibcabDevInfoSchema, FibcabDevConfigSchema, FibcabDevStateSchema
 from sqlalchemy.orm import joinedload
+from typing import List, Dict
 from math import radians, sin, cos, sqrt, atan2
 # Crear un registro en fibcab_dev_info
 def create_fibcab_dev_info(db: Session, fibcab_dev_info: FibcabDevInfoSchema):
@@ -118,22 +119,18 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     return distance
 
 def calculate_fibcab_parameters(db: Session, fibcab_sn: str):
-    """
-    Calcula la distancia y parámetros relacionados para un fibcab específico.
-    """
-    # Obtener la información del fibcab
+    # Verificar si el fibcab existe
     fibcab_info = db.query(FibcabDevInfo).filter(FibcabDevInfo.sn == fibcab_sn).first()
     if not fibcab_info:
         raise ValueError(f"Fibcab SN {fibcab_sn} no encontrado")
 
-    # Obtener las coordenadas de los nodos de origen y destino
+    # Verificar nodos de origen y destino
     source_node = fibcab_info.source_node
     target_node = fibcab_info.target_node
-
     if not source_node or not target_node:
         raise ValueError("Nodos de origen o destino no encontrados para el fibcab")
 
-    # Calcular la distancia entre los nodos
+    # Calcular distancia
     distance_km = calculate_distance(
         source_node.lattitude,
         source_node.longitude,
@@ -141,24 +138,22 @@ def calculate_fibcab_parameters(db: Session, fibcab_sn: str):
         target_node.longitude
     )
 
-    # Obtener la configuración del fibcab
+    # Obtener configuración
     fibcab_config = db.query(FibcabDevConfig).filter(FibcabDevConfig.sn == fibcab_sn).first()
     if not fibcab_config:
         raise ValueError(f"Configuración no encontrada para el fibcab SN {fibcab_sn}")
 
-    # Calcular la atenuación total
+    # Calcular atenuación total
     attenuation_coefficient = fibcab_config.opt2_fiber_attnuetion_coeff or 0.0
     connector_loss = fibcab_config.opt3_connector_loss or 0.0
     splice_loss = fibcab_config.opt3_splice_loss or 0.0
 
-    # Atenuación total = (distancia * coeficiente de atenuación) + pérdidas por conectores y empalmes
     total_attenuation = (
         distance_km * attenuation_coefficient +
         connector_loss +
         splice_loss
     )
 
-    # Retornar los resultados
     return {
         "distance_km": round(distance_km, 2),
         "total_attenuation_db": round(total_attenuation, 2),
@@ -167,42 +162,48 @@ def calculate_fibcab_parameters(db: Session, fibcab_sn: str):
         "splice_loss_db": splice_loss,
         "attenuation_coefficient_db_per_km": attenuation_coefficient,
 }
-    
-    
 
 
-def identify_bottlenecks(db: Session):
+
+def identify_bottlenecks(db: Session, threshold: float = 0.6) -> List[Dict]:
     """
     Identifica los cuellos de botella en las fibras (fibcabs) basándose en su uso y capacidad.
+
+    Args:
+        db (Session): Sesión de la base de datos.
+        threshold (float): Umbral de utilización para considerar un cuello de botella (por defecto 80%).
+
+    Returns:
+        List[Dict]: Lista de cuellos de botella con detalles.
     """
-    bottlenecks = []
+    bottlenecks = ["Hola"]
 
-    # Obtener todas las fibras con su configuración
-    fibcabs = db.query(FibcabDevInfo).all()
+    # Obtener todas las fibras con su configuración y estado en una sola consulta
+    fibcabs_with_config_and_state = (
+        db.query(FibcabDevInfo, FibcabDevConfig, FibcabDevState)
+        .join(FibcabDevConfig, FibcabDevInfo.sn == FibcabDevConfig.sn)
+        .join(FibcabDevState, FibcabDevInfo.sn == FibcabDevState.sn)
+        .all()
+    )
 
-    for fibcab in fibcabs:
-        # Obtener la configuración de la fibra
-        fibcab_config = db.query(FibcabDevConfig).filter(FibcabDevConfig.sn == fibcab.sn).first()
-        if not fibcab_config:
-            continue
-
-        # Supongamos que el uso actual se obtiene de algún modelo o cálculo previo
-        # Por ejemplo, podrías obtenerlo de FibcabDevState o calcularlo dinámicamente
-        fibcab_state = db.query(FibcabDevState).filter(FibcabDevState.sn == fibcab.sn).first()
-        if not fibcab_state:
-            continue
-
+    for fibcab, fibcab_config, fibcab_state in fibcabs_with_config_and_state:
         # Uso actual y capacidad máxima
         usage = fibcab_state.health_point or 0  # Ejemplo: usar health_point como proxy del uso
         capacity = fibcab_config.ficab_capacity or 1  # Evitar división por cero
 
         # Calcular si hay un cuello de botella
-        if usage > capacity * 0.8:  # Umbral del 80%
+        if capacity == 0:
+            print(f"Advertencia: Capacidad cero para la fibra SN {fibcab.sn}. Se omite.")
+            continue
+
+        utilization_percentage = usage / capacity * 100
+
+        if utilization_percentage > threshold * 100:
             bottlenecks.append({
                 "sn": fibcab.sn,
                 "usage": usage,
                 "capacity": capacity,
-                "utilization_percentage": round(usage / capacity * 100, 2)
+                "utilization_percentage": round(utilization_percentage, 2)
             })
 
     return bottlenecks

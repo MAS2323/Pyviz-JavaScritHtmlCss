@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Integer, Float, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, DateTime
+from datetime import datetime
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -31,3 +32,5 @@ class TraffstubDevState(Base):
     warnlog_url = Column(String(255))
     crislog_url = Column(String(255))
     rawfile_url = Column(String(255))
+    # En tu modelo TraffstubDevState
+    timestamp = Column(DateTime, default=datetime.utcnow)

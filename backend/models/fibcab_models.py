@@ -70,7 +70,7 @@ class FibcabDevState(Base):
     crislog_url = Column(String(255))
     rawfile_url = Column(String(255))
 
-    # Relación inversa con FibcabDevInfo
+    # Relación inversa con FibcabDevInfo    
     fibcab_dev_info = relationship(
         "FibcabDevInfo",
         back_populates="state"
