@@ -9,12 +9,18 @@ class FibcabDevInfo(Base):
     gId = Column(Integer)
     tagId = Column(String(50))
     Type = Column(String(50))
+    name = Column(String(100))
+    total_fiber_number = Column(Integer)
+    connected_fiber_number = Column(Integer)
+    connected_array = Column(String(255))
+    suspended_fiber_number = Column(Integer)
+    suspended_array = Column(String(255))
+    cable_temp = Column(Float)
 
-    # Claves foráneas hacia device_info
-    source_sn = Column(String(50), ForeignKey("device_info.sn"))  # Nodo de origen
-    target_sn = Column(String(50), ForeignKey("device_info.sn"))  # Nodo de destino
+    # Foreign keys and relationships (existing ones)
+    source_sn = Column(String(50), ForeignKey("device_info.sn"))
+    target_sn = Column(String(50), ForeignKey("device_info.sn"))
 
-    # Relaciones con device_info
     source_node = relationship(
         "DeviceInfo",
         foreign_keys=[source_sn],
@@ -26,7 +32,6 @@ class FibcabDevInfo(Base):
         back_populates="fibcab_target"
     )
 
-    # Relaciones inversas con FibcabDevConfig y FibcabDevState
     config = relationship(
         "FibcabDevConfig",
         back_populates="fibcab_dev_info",
@@ -37,7 +42,6 @@ class FibcabDevInfo(Base):
         back_populates="fibcab_dev_info",
         uselist=False
     )
-    
     
 class FibcabDevConfig(Base):
     __tablename__ = "fibcab_dev_config"

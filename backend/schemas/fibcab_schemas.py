@@ -3,12 +3,20 @@ from typing import Optional
 
 class FibcabDevInfoSchema(BaseModel):
     sn: str
+    gId: Optional[int] = None
     tagId: Optional[str] = None
     Type: Optional[str] = None
     source_sn: Optional[str] = None
     target_sn: Optional[str] = None
     source_city: Optional[str] = None
     target_city: Optional[str] = None
+    name: Optional[str] = None
+    total_fiber_number: Optional[int] = None
+    connected_fiber_number: Optional[int] = None
+    connected_array: Optional[str] = None
+    suspended_fiber_number: Optional[int] = None
+    suspended_array: Optional[str] = None
+    cable_temp: Optional[float] = None
 
     class Config:
         from_attributes = True
