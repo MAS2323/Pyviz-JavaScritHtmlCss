@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
+from models.control_frame_model import ControlFrame
 from schemas.control_frame_schema import ControlFrameCreate, ControlFrameResponse
 from controllers.control_frame_controller import create_control_frame, receive_control_frame, get_control_frames, ValuesHandler
 from database import get_db

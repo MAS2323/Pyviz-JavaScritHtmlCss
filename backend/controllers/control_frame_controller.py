@@ -3,6 +3,11 @@ from sqlalchemy.orm import Session
 from models.control_frame_model import ControlFrame
 import struct
 from typing import Dict, Any
+import socket
+
+# Configuración para comunicación con hardware (SDH device)
+HARDWARE_IP = "192.168.1.100"  # IP del dispositivo SDH
+HARDWARE_PORT = 5000  # Puerto del dispositivo SDH
 
 class ValuesHandler:
     @staticmethod
@@ -61,6 +66,10 @@ class ValuesHandler:
     @staticmethod
     def serialize_fibcab_report(values: Dict[str, Any]) -> bytes:
         return struct.pack("!BQ", values["brkNum"], values["brkBitMap"])
+
+    @staticmethod
+    def serialize_empty(values: Dict[str, Any]) -> bytes:
+        return b""
 
     @staticmethod
     def deserialize_traffstub(data: bytes) -> Dict[str, Any]:
@@ -133,6 +142,12 @@ class ValuesHandler:
             "brkBitMap": brkBitMap
         }
 
+    @staticmethod
+    def deserialize_empty(data: bytes) -> Dict[str, Any]:
+        if len(data) != 0:
+            raise ValueError("Expected empty values")
+        return {}
+
     @classmethod
     def serialize(cls, cmdFlg: int, values: Dict[str, Any]) -> bytes:
         handlers = {
@@ -142,7 +157,20 @@ class ValuesHandler:
             5: cls.serialize_jmpmat,
             6: cls.serialize_fibcab,
             182: cls.serialize_fibcab_event,
-            135: cls.serialize_fibcab_report
+            135: cls.serialize_fibcab_report,
+            128: cls.serialize_empty,
+            129: cls.serialize_empty,
+            130: cls.serialize_empty,
+            131: cls.serialize_empty,
+            132: cls.serialize_empty,
+            133: cls.serialize_empty,
+            134: cls.serialize_empty,
+            176: cls.serialize_empty,
+            177: cls.serialize_empty,
+            178: cls.serialize_empty,
+            179: cls.serialize_empty,
+            180: cls.serialize_empty,
+            181: cls.serialize_empty,
         }
         handler = handlers.get(cmdFlg)
         if not handler:
@@ -158,12 +186,37 @@ class ValuesHandler:
             5: cls.deserialize_jmpmat,
             6: cls.deserialize_fibcab,
             182: cls.deserialize_fibcab_event,
-            135: cls.deserialize_fibcab_report
+            135: cls.deserialize_fibcab_report,
+            128: cls.deserialize_empty,
+            129: cls.deserialize_empty,
+            130: cls.deserialize_empty,
+            131: cls.deserialize_empty,
+            132: cls.deserialize_empty,
+            133: cls.deserialize_empty,
+            134: cls.deserialize_empty,
+            176: cls.deserialize_empty,
+            177: cls.deserialize_empty,
+            178: cls.deserialize_empty,
+            179: cls.deserialize_empty,
+            180: cls.deserialize_empty,
+            181: cls.deserialize_empty,
         }
         handler = handlers.get(cmdFlg)
         if not handler:
             raise ValueError(f"Unsupported cmdFlg: {cmdFlg}")
         return handler(data)
+
+def send_to_hardware(cmdFlg: int, gId: int, param: int, values: bytes):
+    try:
+        # Construir el paquete: cmdFlg (2 bytes) | gId (4 bytes) | param (2 bytes) | length (2 bytes) | values
+        length = len(values)
+        packet = struct.pack("!HIHH", cmdFlg, gId, param, length) + values
+
+        # Enviar paquete via UDP
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.sendto(packet, (HARDWARE_IP, HARDWARE_PORT))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send to hardware: {str(e)}")
 
 def create_control_frame(db: Session, frame_data: Dict[str, Any]) -> ControlFrame:
     try:
@@ -178,6 +231,11 @@ def create_control_frame(db: Session, frame_data: Dict[str, Any]) -> ControlFram
         db.add(frame)
         db.commit()
         db.refresh(frame)
+
+        # Enviar al hardware (solo para configuración, no reportes)
+        if frame.cmdFlg < 128:  # cmdFlg < 128 son mensajes de configuración
+            send_to_hardware(frame.cmdFlg, frame.gId, frame.param, frame.values)
+
         return frame
     except Exception as e:
         db.rollback()

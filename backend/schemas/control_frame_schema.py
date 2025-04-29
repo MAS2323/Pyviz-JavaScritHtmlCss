@@ -5,7 +5,7 @@ import base64
 
 # Esquema base para entrada de control frame
 class ControlFrameBase(BaseModel):
-    cmdFlg: int = Field(..., description="Identificador del tipo de mensaje (2=traffstub, 3=SDH, 4=IOLP, 5=jmpmat, 6=fibcab, 182=fibcab_event, 135=fibcab_report)")
+    cmdFlg: int = Field(..., description="Identificador del tipo de mensaje (2=traffstub, 3=SDH, 4=IOLP, 5=jmpmat, 6=fibcab, 128-135=reset reports, 176-182=events)")
     gId: int = Field(..., description="ID del dispositivo receptor")
     param: int = Field(..., description="Parámetro o Tag del mensaje")
 
@@ -41,6 +41,10 @@ class ValuesFibcabReport(BaseModel):
     brkNum: int = Field(..., ge=0, le=255, description="Número de fibras interrumpidas")
     brkBitMap: int = Field(..., ge=0, description="BitMap de fibras interrumpidas")
 
+# Esquema para mensajes con Length=0 (reset reports y eventos sin valores)
+class ValuesEmpty(BaseModel):
+    pass
+
 # Esquema para crear un control frame
 class ControlFrameCreate(ControlFrameBase):
     values: Dict[str, Any] = Field(..., description="Valores específicos según cmdFlg")
@@ -49,7 +53,7 @@ class ControlFrameCreate(ControlFrameBase):
 class ControlFrameResponse(ControlFrameBase):
     id: int = Field(..., description="ID del frame en la base de datos")
     length: int = Field(..., description="Longitud del campo values en bytes")
-    values: bytes = Field(..., description="Datos binarios del campo values", exclude=True)  # Exclude from serialization
+    values: bytes = Field(..., description="Datos binarios del campo values", exclude=True)
     timestamp: datetime = Field(..., description="Fecha y hora de creación")
 
     @computed_field
