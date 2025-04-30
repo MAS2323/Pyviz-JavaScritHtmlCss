@@ -1,0 +1,107 @@
+.draggable-popup {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  padding: 15px;
+  font-family: Arial, sans-serif;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #333;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.popup-header {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  cursor: move;
+  border-bottom: 1px solid #444;
+  text-align: center;
+  font-weight: bold;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popup-header .close-button {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 10px;
+}
+
+.popup-header .close-button:hover {
+  color: #fff;
+}
+
+.popup-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background: #4af;
+  cursor: se-resize;
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+  touch-action: none;
+}
+
+/* Scrollbar personalizada */
+.popup-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsividad */
+@media (max-width: 600px) {
+  .draggable-popup {
+    width: 90% !important;
+    height: 50% !important;
+    left: 5px;
+    padding: 10px;
+  }
+
+  .popup-header {
+    padding: 15px;
+    font-size: 14px;
+  }
+
+  .resize-handle {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+  .draggable-popup {
+    width: 70% !important;
+    height: 60% !important;
+  }
+}
