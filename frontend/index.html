@@ -2,101 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CesiumJS with Python Data</title>
-    <!-- Font Awesome for icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
     <style>
-      @import url(public/Cesium/Build/Cesium/Widgets/widgets.css);
+      @import url(/Cesium/Build/Cesium/Widgets/widgets.css);
     </style>
-    <!-- Link to the custom styles -->
-    <link rel="stylesheet" href="css/style.css" />
+    <title>Vite + React</title>
   </head>
   <body>
-    <!-- Toolbar -->
-    <div class="toolbar">
-      <h2>基于PyViz的智能光SDH数字孪生前端技术研究</h2>
-      <div class="search-container" id="cesiumGeocoder"></div>
-      <div class="toolbar-icons">
-        <button id="modeToggle"><i class="fas fa-globe"></i></button>
-        <button id="pinButton"><i class="fas fa-map-pin"></i></button>
-        <button id="rulerButton"><i class="fas fa-ruler"></i></button>
-      </div>
-    </div>
-    <!-- Placeholder for Auth Pages -->
-    <div class="auth-container">
-      <h1>Welcome to 基于PyViz的智能光SDH数字孪生前端技术研究</h1>
-      <p>Please log in or register to continue.</p>
-      <a href="pages/auth/login.html" class="btn">Go to Login</a>
-    </div>
-    <!-- Pop-up -->
-    <div class="popup hidden">
-      <p>Find and manage all your projects in Cesium.</p>
-      <button>Dismiss</button>
-    </div>
-    <!-- Pop-up para la información del nodo -->
-    <div id="nodePopup" class="popup hidden">
-      <h3>Node Information</h3>
-      <p><strong>Name:</strong> <span id="nodeName">N/A</span></p>
-      <p><strong>City:</strong> <span id="nodeCity">N/A</span></p>
-      <p><strong>Location:</strong> <span id="nodeLocation">N/A</span></p>
-      <p><strong>Producer:</strong> <span id="nodeProducer">N/A</span></p>
-      <button id="closeNodePopup">Close</button>
-    </div>
-    <!-- Pop-up para la información de SDH -->
-    <div id="sdhPopup" class="popup hidden">
-      <h3>SDH Information</h3>
-      <div id="sdhContent">
-        <p>Loading...</p>
-      </div>
-      <button id="closeSdhPopup">Close</button>
-    </div>
-    <!-- Pop-up para la información de fibcab -->
-    <div id="fibcabPopup" class="popup hidden">
-      <h3>Fibcab Information</h3>
-      <div id="fibcabContent">
-        <p>Loading...</p>
-      </div>
-      <button id="closeFibcabPopup">Close</button>
-    </div>
-    <div id="baseLayerContainer" class="base-layer-picker"></div>
-    <!-- Cesium Container -->
-    <div id="cesiumContainer"></div>
-    <!-- Floating Buttons -->
-    <div class="floating-buttons">
-      <button id="modeToggle"><i class="fas fa-globe"></i></button>
-      <button id="pinButton"><i class="fas fa-map-pin"></i></button>
-      <button id="rulerButton"><i class="fas fa-ruler"></i></button>
-    </div>
-    <!-- Footer -->
-    <footer class="cesium-footer">
-      <div class="footer-left"><i class="fas fa-layer-group"></i> Layers</div>
-      <div class="footer-center">
-        <span>Google</span> 100% | <a href="#">Data attribution</a> | 1/1/2021
-      </div>
-      <div class="footer-right">
-        <span id="cameraHeight">Camera: Loading...</span> |
-        <span id="cameraCoords">Loading...</span>
-      </div>
-    </footer>
-    <!-- Scripts -->
-    <script src="public/Cesium/Build/Cesium/Cesium.js"></script>
-    <script>
-      // Verificar el estado de inicio de sesión al cargar la página
-      document.addEventListener("DOMContentLoaded", () => {
-        const isLoggedIn = localStorage.getItem("isLoggedIn");
-        if (isLoggedIn === "true") {
-          // Aplicar la clase 'logged-in' al body
-          document.body.classList.add("logged-in");
-        } else {
-          // Si no ha iniciado sesión, asegurarse de que la clase 'logged-in' no esté presente
-          document.body.classList.remove("logged-in");
-        }
-      });
-    </script>
-    <script type="module" src="js/app.js"></script>
+    <div id="root"></div>
+    <!-- Hay que hacer el import de este style y script-->
+    <script src="/Cesium/Build/Cesium/Cesium.js"></script>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

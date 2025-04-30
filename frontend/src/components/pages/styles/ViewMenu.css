@@ -1,0 +1,373 @@
+.view-menu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(
+    -100%,
+    -50%
+  ); /* Center both horizontally and vertically */
+  min-width: 300px; /* Minimum width */
+  min-height: 200px; /* Minimum height */
+  background-color: #1a1a1a; /* Darker background to match the Settings popup */
+  border: none; /* Remove border for a cleaner look */
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); /* Stronger shadow */
+  color: #eee;
+  font-family: Arial, sans-serif;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  margin-top: 320px;
+}
+
+/* Resize Handle */
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 15px;
+  height: 15px;
+  background: transparent;
+  cursor: se-resize; /* Diagonal resize cursor */
+  z-index: 1001; /* Above other elements */
+}
+
+/* Add a visual indicator for the resize handle */
+.resize-handle::before {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 8px 8px;
+  border-color: transparent transparent #4af transparent; /* Blue triangle */
+}
+
+/* Header */
+.view-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: none; /* No background */
+}
+
+.view-menu-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.close-button:hover {
+  color: #fff;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  padding: 0 20px;
+  border-bottom: 1px solid #333;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #aaa;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tabs button.active {
+  color: #4af;
+  border-bottom: 2px solid #4af;
+  font-weight: bold;
+}
+
+.tabs button:hover {
+  color: #fff;
+}
+
+/* Content Container */
+.content-container {
+  flex: 1;
+  overflow-y: auto; /* Show scrollbar only when necessary */
+  padding: 20px;
+  /* Hide scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on touch devices */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+}
+
+/* Hide scrollbar for WebKit browsers */
+.content-container::-webkit-scrollbar {
+  display: none; /* Completely hide the scrollbar */
+}
+
+/* Section */
+.section {
+  margin-bottom: 20px;
+}
+
+.section h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.section p {
+  margin: 0 0 10px;
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* Chart Type Selector */
+.chart-type-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.chart-type-selector label {
+  color: #eee;
+  font-size: 14px;
+}
+
+.chart-type-selector select {
+  padding: 5px 10px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: #333;
+  color: #eee;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.chart-type-selector select:focus {
+  outline: none;
+  border-color: #4af;
+}
+
+.chart-type-selector select option {
+  background: #333;
+  color: #eee;
+}
+
+/* Interactive Chart */
+.interactive-chart {
+  margin-top: 15px;
+  background: none; /* Remove background to match the Settings popup */
+  border-radius: 4px;
+  padding: 0;
+  width: 100%; /* Ensure chart takes full width of the container */
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  text-align: center;
+  padding: 40px;
+  color: #aaa;
+}
+
+/* Action Button (e.g., Visualize in Cesium) */
+.action-button {
+  background: #4af;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.action-button:hover {
+  background: #38e;
+}
+
+/* Footer */
+.view-menu-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid #333;
+}
+
+.footer-button {
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.footer-button.secondary {
+  background: none;
+  border: none;
+  color: #4af;
+}
+
+.footer-button.secondary:hover {
+  color: #38e;
+}
+
+.footer-button.primary {
+  background: #4af;
+  border: none;
+  color: white;
+  font-weight: bold;
+}
+
+.footer-button.primary:hover {
+  background: #38e;
+}
+
+/* Responsivity */
+@media (max-width: 768px) {
+  .view-menu {
+    width: 90%; /* Take up 90% of the viewport width */
+    height: auto; /* Let height adjust based on content */
+    min-width: 300px; /* Ensure a minimum width for readability */
+  }
+
+  .view-menu-header {
+    padding: 10px 15px;
+  }
+
+  .view-menu-header h2 {
+    font-size: 18px;
+  }
+
+  .close-button {
+    font-size: 20px;
+    padding: 5px 8px;
+  }
+
+  .tabs {
+    flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
+    padding: 0 15px;
+  }
+
+  .tabs button {
+    flex: 1 1 45%; /* Two tabs per row */
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .content-container {
+    padding: 15px;
+  }
+
+  .section h3 {
+    font-size: 14px;
+  }
+
+  .section p {
+    font-size: 12px;
+  }
+
+  .chart-type-selector {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .chart-type-selector label {
+    font-size: 12px;
+  }
+
+  .chart-type-selector select {
+    width: 100%; /* Full width on small screens */
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .interactive-chart {
+    /* Ensure chart resizes properly */
+    width: 100%;
+    overflow-x: auto; /* Allow horizontal scrolling if chart overflows */
+  }
+
+  .view-menu-footer {
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 8px;
+    padding: 10px 15px;
+  }
+
+  .footer-button {
+    width: 100%; /* Full width buttons on small screens */
+    font-size: 12px;
+    padding: 8px;
+    text-align: center;
+  }
+
+  .resize-handle {
+    width: 12px;
+    height: 12px;
+  }
+
+  .resize-handle::before {
+    border-width: 0 0 6px 6px; /* Smaller triangle on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .view-menu {
+    width: 95%; /* Even narrower for very small screens */
+    height: auto; /* Let height adjust based on content */
+  }
+
+  .view-menu-header h2 {
+    font-size: 16px;
+  }
+
+  .close-button {
+    font-size: 18px;
+  }
+
+  .tabs button {
+    flex: 1 1 100%; /* Stack tabs vertically */
+    font-size: 11px;
+    padding: 6px;
+  }
+
+  .content-container {
+    padding: 10px;
+  }
+
+  .section h3 {
+    font-size: 13px;
+  }
+
+  .section p {
+    font-size: 11px;
+  }
+
+  .chart-type-selector select {
+    font-size: 11px;
+  }
+
+  .footer-button {
+    font-size: 11px;
+    padding: 6px;
+  }
+}
