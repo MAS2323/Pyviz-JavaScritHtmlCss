@@ -6,21 +6,19 @@ from database import Base
 class TraffstubDevInfo(Base):
     __tablename__ = "traffstub_dev_info"
     sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)
+    gId = Column(Integer, ForeignKey("control_frames.gId"), nullable=False)  # Added gId
     tagId = Column(String(50))
     Type = Column(String(50))
-
     device_info = relationship("DeviceInfo", back_populates="traffstub_dev_info")
-
 class TraffstubDevConfig(Base):
     __tablename__ = "traffstub_dev_config"
     sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)
-    txer_Id = Column(String(50), primary_key=True)
+    txer_Id = Column(String(50))
     txer_destaddr = Column(String(50))
     txer_pkgrate = Column(String(50))
-    rxer_Id = Column(String(50), primary_key=True)
+    rxer_Id = Column(String(50))
     rxer_srcaddr = Column(String(50))
-    rxer_pkgrate = Column(String(50
-    ))
+    rxer_pkgrate = Column(String(50))
 
 class TraffstubDevState(Base):
     __tablename__ = "traffstub_dev_state"
@@ -32,5 +30,4 @@ class TraffstubDevState(Base):
     warnlog_url = Column(String(255))
     crislog_url = Column(String(255))
     rawfile_url = Column(String(255))
-    # En tu modelo TraffstubDevState
     timestamp = Column(DateTime, default=datetime.utcnow)

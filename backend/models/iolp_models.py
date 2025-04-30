@@ -5,18 +5,11 @@ from database import Base
 class IolpDevInfo(Base):
     __tablename__ = "iolp_dev_info"
     sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)
+    gId = Column(Integer, ForeignKey("control_frames.gId"), nullable=False)  # Added gId
     tagId = Column(String(50))
     Type = Column(String(50))
-
     device_info = relationship("DeviceInfo", back_populates="iolp_dev_info")
-    
-    # Nueva relación inversa con JmpMat
-    jmpmat = relationship(
-        "JmpMat",
-        back_populates="iolp",
-        uselist=False
-    )
-    
+    jmpmat = relationship("JmpMat", back_populates="iolp_dev_info", uselist=False)
 
 class IolpDevConfig(Base):
     __tablename__ = "iolp_dev_config"
@@ -24,12 +17,12 @@ class IolpDevConfig(Base):
     switch_vec = Column(String(255))
     actived_pairs = Column(String(255))
     inactived_pairs = Column(String(255))
-    in2dev_gId = Column(Integer)
+    in2dev_gId = Column(Integer)  # Clarify if this needs ForeignKey
     in2dev_connmap = Column(String(255))
-    out2dev_gId = Column(Integer)
+    out2dev_gId = Column(Integer)  # Clarify if this needs ForeignKey
     out2dev_connmap = Column(String(255))
     thermsensor_id = Column(String(50))
-
+    
 class IolpDevState(Base):
     __tablename__ = "iolp_dev_state"
     sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)

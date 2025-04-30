@@ -34,7 +34,6 @@ def read_fibcab_dev(sn: str, db: Session = Depends(get_db)):
     if not fibcab:
         raise HTTPException(status_code=404, detail="Fibcab dev info not found")
     return fibcab
-
 # Nueva ruta para obtener fibras relacionadas con un dispositivo
 @fibcab_router.get("/dev-info/")
 def read_fibcabs_for_device(

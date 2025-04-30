@@ -6,23 +6,24 @@ from database import Base
 class SdhDevInfo(Base):
     __tablename__ = "sdh_dev_info"
     sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)
+    gId = Column(Integer, ForeignKey("control_frames.gId"), nullable=False)  # Added gId
     tagId = Column(String(50))
     Type = Column(String(50))
-
     device_info = relationship("DeviceInfo", back_populates="sdh_dev_info")
-    jmpmat = relationship("JmpMat", back_populates="sdh")
+    jmpmat = relationship("JmpMat", back_populates="sdh_dev_info", uselist=False)
+    
 class SdhDevConfig(Base):
     __tablename__ = "sdh_dev_config"
     sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)
     opt1_dir_name = Column(String(100))
-    opt1_dir_gId = Column(Integer)
+    opt1_dir_gId = Column(Integer)  # Clarify if this needs ForeignKey
     opt1_trans_type = Column(String(50))
     opt1_traffic = Column(String(50))
     opt2_dir_name = Column(String(100))
-    opt2_dir_gId = Column(Integer)
+    opt2_dir_gId = Column(Integer)  # Clarify if this needs ForeignKey
     opt2_trans_type = Column(String(50))
     opt2_traffic = Column(String(50))
-
+    
 class SdhDevState(Base):
     __tablename__ = "sdh_dev_state"
     sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)
