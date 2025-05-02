@@ -12,6 +12,7 @@ from controllers.fibcab_controller import (
     identify_bottlenecks,
     calculate_health_score,
     get_all_fibcab_dev_info,
+    get_fibcab_status
 )
 from schemas.fibcab_schemas import (
     FibcabDevInfoSchema,
@@ -27,6 +28,9 @@ fibcab_router = APIRouter(prefix="/fibcab", tags=["FIBCAB"])
 def create_fibcab_dev(dev_info: FibcabDevInfoSchema, db: Session = Depends(get_db)):
     return create_fibcab_dev_info(db, dev_info)
 
+@fibcab_router.get("/{sn}/status")
+def read_fibcab_status(sn: str, db: Session = Depends(get_db)):
+    return get_fibcab_status(db, sn)
 # Ruta para obtener una fibra por SN
 @fibcab_router.get("/dev-info/{sn}")
 def read_fibcab_dev(sn: str, db: Session = Depends(get_db)):
@@ -115,3 +119,8 @@ def get_health_score(warnings: int = 0, crises: int = 0):
 @fibcab_router.get("/dev-info-all/")
 def read_all_fibcab_devs(db: Session = Depends(get_db)):
     return get_all_fibcab_dev_info(db)
+
+
+@fibcab_router.get("/bottlenecks")
+async def get_bottlenecks(db: Session = Depends(get_db)):
+    return {"bottlenecks": identify_bottlenecks(db)}

@@ -1,3 +1,5 @@
+# main.py
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from routers.sdh_router import sdh_router
@@ -8,17 +10,21 @@ from routers.traffstub_router import traffstub_router
 from routers.jmpmat_router import jmpmat_router
 from routers.pyviz_router import pyviz_router
 from routers.control_frame_router import control_frame_router
+from routers.tianditu_proxy import router as tianditu_router
+
 from database import Base, engine
 
-# Crear la aplicación FastAPI
+# Crear todas las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 
 origins = [
     "http://127.0.0.1:5500",
     "http://localhost:5173",
 ]
-# Configurar el middleware CORS
+
+# Configurar middleware CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -27,7 +33,7 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"],
 )
 
-# Montar los routers
+# Incluir todos los routers
 app.include_router(fibcab_router)
 app.include_router(iolp_router)
 app.include_router(jmpmat_router)
@@ -37,6 +43,8 @@ app.include_router(dev_info_router)
 app.include_router(pyviz_router)
 app.include_router(control_frame_router)
 
+# 👇 Incluir el router del proxy seguro
+app.include_router(tianditu_router)
 # Ruta de bienvenida
 @app.get("/")
 def read_root():

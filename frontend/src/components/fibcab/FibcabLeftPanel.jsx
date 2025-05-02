@@ -1,47 +1,102 @@
 import React, { useEffect, useState } from "react";
-import { fetchFibcabState, calculateFibcabParameters } from "../../helpers/api";
+import {
+  fetchFibcabState,
+  calculateFibcabParameters,
+  fetchFibcabStatus,
+} from "../../helpers/api";
 import BottleneckIndicator from "../../components/viewer/BottleneckIndicator";
 import Popup from "./components/Popup";
 
 const FibcabLeftPanel = ({ data, onClose }) => {
   const [fibcabState, setFibcabState] = useState(null);
   const [fibcabParams, setFibcabParams] = useState(null);
+  const [fiberStatus, setFiberStatus] = useState(null);
   const [loading, setLoading] = useState({
     state: false,
     params: false,
+    status: false,
   });
   const [popupData, setPopupData] = useState(null);
 
   useEffect(() => {
     if (data?.sn) {
+      // Cargar estado del dispositivo
       setLoading((prev) => ({ ...prev, state: true }));
       const fetchState = async () => {
         try {
           const state = await fetchFibcabState(data.sn);
           setFibcabState(state);
         } catch (error) {
-          console.error("获取fibcab状态错误:", error);
+          console.error("Error al obtener estado fibcab:", error);
         } finally {
           setLoading((prev) => ({ ...prev, state: false }));
         }
       };
 
+      // Cargar parámetros técnicos
       setLoading((prev) => ({ ...prev, params: true }));
       const fetchParams = async () => {
         try {
           const params = await calculateFibcabParameters(data.sn);
           setFibcabParams(params);
         } catch (error) {
-          console.error("计算fibcab参数错误:", error);
+          console.error("Error al calcular parámetros fibcab:", error);
         } finally {
           setLoading((prev) => ({ ...prev, params: false }));
         }
       };
 
+      // Cargar estado de la fibra (color)
+      setLoading((prev) => ({ ...prev, status: true }));
+      const fetchStatus = async () => {
+        try {
+          const status = await fetchFibcabStatus(data.sn);
+          setFiberStatus(status);
+        } catch (error) {
+          console.error("Error al obtener estado de fibra:", error);
+        } finally {
+          setLoading((prev) => ({ ...prev, status: false }));
+        }
+      };
+
       fetchState();
       fetchParams();
+      fetchStatus();
+
+      // Configurar actualización periódica del estado
+      const intervalId = setInterval(() => {
+        fetchStatus();
+      }, 30000); // Actualizar cada 30 segundos
+
+      return () => clearInterval(intervalId);
     }
   }, [data?.sn]);
+
+  const getStatusColor = () => {
+    if (!fiberStatus) return "#3498db"; // Azul por defecto
+
+    switch (fiberStatus.fiber_color) {
+      case "red":
+        return "#ff4444";
+      case "yellow":
+        return "#ffbb33";
+      default:
+        return "#00C851"; // Verde para estado normal
+    }
+  };
+
+  const getStatusText = () => {
+    if (!fiberStatus) return "Estado: Cargando...";
+
+    switch (fiberStatus.fiber_color) {
+      case "red":
+        return "Estado: CRÍTICO";
+      case "yellow":
+        return "Estado: ADVERTENCIA";
+      default:
+        return "Estado: NORMAL";
+    }
+  };
 
   const detailedInfo = {
     标识: {
@@ -169,6 +224,32 @@ const FibcabLeftPanel = ({ data, onClose }) => {
     };
   }
 
+  // Añadir información de estado de fibra si está disponible
+  if (fiberStatus) {
+    detailedInfo["状态"] = {
+      ...detailedInfo["状态"],
+      光纤状态: (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            style={{
+              width: "12px",
+              height: "12px",
+              borderRadius: "50%",
+              backgroundColor: getStatusColor(),
+              marginRight: "8px",
+            }}
+          />
+          {getStatusText()}
+          {fiberStatus.usage_percentage && (
+            <span style={{ marginLeft: "8px" }}>
+              (Uso: {fiberStatus.usage_percentage}%)
+            </span>
+          )}
+        </div>
+      ),
+    };
+  }
+
   return (
     <div
       style={{
@@ -209,7 +290,7 @@ const FibcabLeftPanel = ({ data, onClose }) => {
 
       <hr style={{ margin: "10px 0", borderColor: "#ecf0f1" }} />
 
-      {(loading.state || loading.params) && (
+      {(loading.state || loading.params || loading.status) && (
         <div style={{ textAlign: "center", padding: "10px", color: "#7f8c8d" }}>
           加载中...
         </div>
@@ -219,7 +300,40 @@ const FibcabLeftPanel = ({ data, onClose }) => {
         <BottleneckIndicator
           capacity={fibcabParams.fibcab_capacity}
           health={fibcabState.health_point}
+          usage_percentage={fiberStatus?.usage_percentage}
+          fiber_status={fiberStatus?.fiber_color}
         />
+      )}
+
+      {fiberStatus && (
+        <div
+          style={{
+            marginBottom: "15px",
+            padding: "10px",
+            backgroundColor: `${getStatusColor()}20`,
+            borderLeft: `4px solid ${getStatusColor()}`,
+            borderRadius: "4px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div
+              style={{
+                width: "16px",
+                height: "16px",
+                borderRadius: "50%",
+                backgroundColor: getStatusColor(),
+                marginRight: "10px",
+              }}
+            />
+            <strong>{getStatusText()}</strong>
+          </div>
+          {fiberStatus.usage_percentage && (
+            <div style={{ marginTop: "5px" }}>
+              使用率: <strong>{fiberStatus.usage_percentage}%</strong> of
+              capacity
+            </div>
+          )}
+        </div>
       )}
 
       {Object.entries(detailedInfo).map(([category, fields]) => (

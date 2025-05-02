@@ -1,14 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { useCesium } from "../CesiumContext";
-import { fetchAllDevices, fetchFibcabsForDevice } from "../helpers/api";
+import {
+  fetchAllDevices,
+  fetchFibcabsForDevice,
+  fetchFibcabStatus,
+} from "../helpers/api";
 import BottomRightPanel from "./node/RightPanel";
 import LeftPanel from "./node/LeftPanel";
-import FibcabLeftPanel from "./fibcab/FibcabLeftPanel"; // Nuevo componente
-import FibcabRightPanel from "./fibcab/FibcabRightPanel"; // Nuevo componente
+import FibcabLeftPanel from "./fibcab/FibcabLeftPanel";
+import FibcabRightPanel from "./fibcab/FibcabRightPanel";
+import * as Cesium from "cesium";
+
+const FiberColors = {
+  blue: Cesium.Color.BLUE.withAlpha(0.7),
+  yellow: Cesium.Color.YELLOW.withAlpha(0.7),
+  red: Cesium.Color.RED.withAlpha(0.7),
+};
 
 const DeviceLayer = () => {
   const { viewer } = useCesium();
   const [selectedEntity, setSelectedEntity] = useState(null);
+  const [fiberEntities, setFiberEntities] = useState({});
 
   useEffect(() => {
     if (!viewer) return;
@@ -16,19 +28,21 @@ const DeviceLayer = () => {
     const loadDevicesAndFibers = async () => {
       try {
         const devices = await fetchAllDevices();
+        const fiberEntitiesMap = {};
 
         for (const device of devices) {
           if (isValidCoordinate(device.longitude, device.lattitude)) {
-            const deviceWithType = {
-              ...device,
-              Type: "Device",
-            };
-            addDeviceEntity(viewer, deviceWithType);
+            addDeviceEntity(viewer, device);
           }
 
           try {
             const fibcabs = await fetchFibcabsForDevice(device.sn);
-            addFibcabEntities(viewer, fibcabs);
+            for (const fibcab of fibcabs) {
+              const entity = await addFibcabEntity(viewer, fibcab);
+              if (entity) {
+                fiberEntitiesMap[fibcab.sn] = entity;
+              }
+            }
           } catch (error) {
             console.error(
               `Error loading fibcabs for device ${device.sn}:`,
@@ -36,6 +50,9 @@ const DeviceLayer = () => {
             );
           }
         }
+
+        setFiberEntities(fiberEntitiesMap);
+        startFiberStatusPolling(fiberEntitiesMap);
       } catch (error) {
         console.error("Error loading devices:", error);
       }
@@ -58,10 +75,45 @@ const DeviceLayer = () => {
     };
   }, [viewer]);
 
+  const startFiberStatusPolling = (entitiesMap) => {
+    const intervalId = setInterval(async () => {
+      for (const [sn, entity] of Object.entries(entitiesMap)) {
+        try {
+          const status = await fetchFibcabStatus(sn);
+          updateFiberColor(entity, status.fiber_color);
+
+          // Actualizar datos de la entidad si es la seleccionada
+          if (
+            selectedEntity &&
+            selectedEntity.data &&
+            selectedEntity.data.sn === sn
+          ) {
+            setSelectedEntity({
+              ...selectedEntity,
+              data: {
+                ...selectedEntity.data,
+                ...status,
+              },
+            });
+          }
+        } catch (error) {
+          console.error(`Error updating status for fiber ${sn}:`, error);
+        }
+      }
+    }, 30000); // Actualizar cada 30 segundos
+
+    return () => clearInterval(intervalId);
+  };
+
+  const updateFiberColor = (entity, color) => {
+    if (entity && entity.polyline) {
+      entity.polyline.material = FiberColors[color] || FiberColors.blue;
+    }
+  };
+
   const renderPopups = () => {
     if (!selectedEntity?.data) return null;
 
-    // Dispositivo (tiene campo Type)
     if (selectedEntity.data.Type) {
       return (
         <>
@@ -72,9 +124,7 @@ const DeviceLayer = () => {
           <BottomRightPanel data={selectedEntity.data} />
         </>
       );
-    }
-    // Fibra (tiene source_longitude y target_longitude)
-    else if (
+    } else if (
       selectedEntity.data.source_longitude &&
       selectedEntity.data.target_longitude
     ) {
@@ -95,7 +145,6 @@ const DeviceLayer = () => {
   return renderPopups();
 };
 
-// Helper functions (se mantienen igual)
 const addDeviceEntity = (viewer, device) => {
   const devicePosition = Cesium.Cartesian3.fromDegrees(
     parseFloat(device.longitude),
@@ -122,40 +171,56 @@ const addDeviceEntity = (viewer, device) => {
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
       heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
     },
-    data: device,
+    data: { ...device, Type: "Device" },
   });
 };
 
-const addFibcabEntities = (viewer, fibcabs) => {
-  fibcabs.forEach((fibcab) => {
-    if (
-      isValidCoordinate(fibcab.source_longitude, fibcab.source_latitude) &&
-      isValidCoordinate(fibcab.target_longitude, fibcab.target_latitude)
-    ) {
-      const startPosition = Cesium.Cartesian3.fromDegrees(
-        parseFloat(fibcab.source_longitude),
-        parseFloat(fibcab.source_latitude),
-        0
-      );
+const addFibcabEntity = async (viewer, fibcab) => {
+  if (
+    !isValidCoordinate(fibcab.source_longitude, fibcab.source_latitude) ||
+    !isValidCoordinate(fibcab.target_longitude, fibcab.target_latitude)
+  ) {
+    console.error(`Coordenadas inválidas para fibra ${fibcab.sn}`);
+    return null;
+  }
 
-      const endPosition = Cesium.Cartesian3.fromDegrees(
-        parseFloat(fibcab.target_longitude),
-        parseFloat(fibcab.target_latitude),
-        0
-      );
+  const startPosition = Cesium.Cartesian3.fromDegrees(
+    parseFloat(fibcab.source_longitude),
+    parseFloat(fibcab.source_latitude),
+    0
+  );
 
-      viewer.entities.add({
-        polyline: {
-          positions: [startPosition, endPosition],
-          width: 5,
-          material: Cesium.Color.BLUE,
-          clampToGround: true,
-        },
-        data: fibcab,
-      });
-    } else {
-      console.error(`Coordenadas inválidas para fibra ${fibcab.sn}`);
+  const endPosition = Cesium.Cartesian3.fromDegrees(
+    parseFloat(fibcab.target_longitude),
+    parseFloat(fibcab.target_latitude),
+    0
+  );
+
+  let fiberColor = "blue";
+
+  try {
+    const status = await fetchFibcabStatus(fibcab.sn);
+    if (status && status.fiber_color) {
+      fiberColor = status.fiber_color;
     }
+  } catch (error) {
+    console.error(
+      `Error getting initial status for fiber ${fibcab.sn}:`,
+      error
+    );
+  }
+
+  return viewer.entities.add({
+    polyline: {
+      positions: [startPosition, endPosition],
+      width: 5,
+      material: FiberColors[fiberColor] || FiberColors.blue,
+      clampToGround: true,
+    },
+    data: {
+      ...fibcab,
+      fiber_color: fiberColor,
+    },
   });
 };
 

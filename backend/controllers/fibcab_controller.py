@@ -224,3 +224,50 @@ def get_all_fibcab_dev_info(db: Session):
         joinedload(FibcabDevInfo.source_node),
         joinedload(FibcabDevInfo.target_node)
     ).all()
+    
+    
+def get_fibcab_status(db: Session, sn: str):
+    # Obtener fibcab info
+    fibcab = db.query(FibcabDevInfo).filter(FibcabDevInfo.sn == sn).first()
+    if not fibcab:
+        raise HTTPException(status_code=404, detail="FIBCAB not found")
+
+    # Obtener configuración y estado
+    config = db.query(FibcabDevConfig).filter(FibcabDevConfig.sn == sn).first()
+    state = db.query(FibcabDevState).filter(FibcabDevState.sn == sn).first()
+
+    if not state:
+        raise HTTPException(status_code=404, detail="FIBCAB state not found")
+
+    # Determinar alerta basado en uso o advertencias
+    capacity = config.ficab_capacity if config else 62  # Valor por defecto
+    usage = state.health_point or 0
+    utilization_percentage = (usage / capacity) * 100 if capacity > 0 else 0
+
+    fiber_color = "blue"
+    warnings_count = len(state.warnings.split(',')) if state.warnings else 0
+    crisis_count = len(state.crisis.split(',')) if state.crisis else 0
+
+    if crisis_count > 0:
+        fiber_color = "red"
+    elif warnings_count > 0:
+        fiber_color = "yellow"
+    elif utilization_percentage > 90:
+        fiber_color = "red"
+    elif utilization_percentage > 75:
+        fiber_color = "yellow"
+
+    return {
+        "sn": fibcab.sn,
+        "name": fibcab.name,
+        "source_sn": fibcab.source_sn,
+        "target_sn": fibcab.target_sn,
+        "source_longitude": fibcab.source_node.longitude if fibcab.source_node else None,
+        "source_latitude": fibcab.source_node.lattitude if fibcab.source_node else None,
+        "target_longitude": fibcab.target_node.longitude if fibcab.target_node else None,
+        "target_latitude": fibcab.target_node.lattitude if fibcab.target_node else None,
+        "warnings": state.warnings,
+        "crisis": state.crisis,
+        "utilization_percentage": round(utilization_percentage, 2),
+        "fiber_color": fiber_color,
+    }
