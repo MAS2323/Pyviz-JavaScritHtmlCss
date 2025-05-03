@@ -49,7 +49,7 @@ const FloatingButtons = ({
 
       {showMenu && (
         <div className="view-selector-card">
-          <h3>Seleccionar Vista</h3>
+          <h3>选择查看</h3>
 
           <div className="view-options">
             <div
@@ -59,7 +59,7 @@ const FloatingButtons = ({
               onClick={() => handleViewChange("satellite", "img_w")}
             >
               <i className="fas fa-satellite"></i>
-              <span>Satélite</span>
+              <span>卫星</span>
             </div>
             <div
               className={`view-option ${
@@ -70,7 +70,7 @@ const FloatingButtons = ({
               <i className="fas fa-language"></i>
               <span>Chino</span>
               {chineseViewOpacity && (
-                <span className="opacity-badge">Opaco</span>
+                <span className="opacity-badge">不透明</span>
               )}
             </div>
           </div>
@@ -82,7 +82,7 @@ const FloatingButtons = ({
                 checked={roadNetworkEnabled}
                 onChange={toggleRoadNetwork}
               />
-              <span>开启路网 (Red Vial)</span>
+              <span>开启路网</span>
             </label>
 
             {/* Nueva opción para la vista de tierra */}
@@ -92,7 +92,7 @@ const FloatingButtons = ({
                 checked={earthViewEnabled}
                 onChange={toggleEarthView}
               />
-              <span>Vista de Tierra</span>
+              <span>陆地视图</span>
             </label>
           </div>
         </div>

@@ -12,6 +12,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import DeviceLayer from "../DeviceLayer";
 import FloatingButtons from "../viewer/FloatingButtons";
 import "./CesiumViewer.css"; // Import the CSS file
+import BottleneckPopup from "../viewer/BottleneckPopup";
 
 const CesiumViewer = ({ onLogout }) => {
   const cesiumContainerRef = useRef(null);
@@ -90,6 +91,7 @@ const CesiumViewer = ({ onLogout }) => {
           isMobile={isMobile}
         />
       )}
+      {viewer && <BottleneckPopup />}
       {viewer && (
         <Toolbar
           viewer={viewer}

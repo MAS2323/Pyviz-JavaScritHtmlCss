@@ -94,11 +94,8 @@ def get_bottlenecks(db: Session = Depends(get_db)):
 # Endpoint para identificar cuellos de botella en un dispositivo específico
 @fibcab_router.get("/bottlenecks/{device_sn}")
 def get_bottlenecks_for_device(device_sn: str, db: Session = Depends(get_db)):
-    """
-    Endpoint para obtener los cuellos de botella relacionados con un dispositivo específico.
-    """
     try:
-        bottlenecks = identify_bottlenecks(db, device_sn)
+        bottlenecks = identify_bottlenecks(db, device_sn, threshold=0.8)
         return {"device_sn": device_sn, "bottlenecks": bottlenecks}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

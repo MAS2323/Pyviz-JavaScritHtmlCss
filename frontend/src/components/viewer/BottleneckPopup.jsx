@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchBottlenecks } from "../helpers/api";
+import { fetchBottlenecks } from "../../helpers/api";
 
 const BottleneckPopup = () => {
   const [bottlenecks, setBottlenecks] = useState([]);
@@ -11,21 +11,49 @@ const BottleneckPopup = () => {
       setLoading(true);
       try {
         const data = await fetchBottlenecks();
-        setBottlenecks(data);
-        setVisible(data.length > 0);
+        setBottlenecks(data || []);
+        setVisible((data || []).length > 0);
       } catch (error) {
-        console.error("检查网络瓶颈错误:", error);
+        console.error("Error fetching bottlenecks:", error);
+        setVisible(false);
+        setBottlenecks([]);
       } finally {
         setLoading(false);
       }
     };
 
-    // 每5分钟检查一次 (300000 ms)
+    // Ejecutar inmediatamente y luego cada 5 minutos
     checkBottlenecks();
     const interval = setInterval(checkBottlenecks, 300000);
 
     return () => clearInterval(interval);
   }, []);
+
+  const getFiberStatus = (percentage) => {
+    if (percentage > 90) return "red"; // crítico
+    if (percentage > 70) return "yellow"; // advertencia
+    return "blue"; // normal
+  };
+
+  const getStatusMessage = (status) => {
+    switch (status) {
+      case "red":
+        return {
+          message: "Estado CRÍTICO - Necesita atención inmediata",
+          icon: "🔴",
+        };
+      case "yellow":
+        return {
+          message: "Estado de ADVERTENCIA - Monitorear",
+          icon: "🟡",
+        };
+      default:
+        return {
+          message: "Estado NORMAL - Operando correctamente",
+          icon: "🔵",
+        };
+    }
+  };
 
   if (!visible || loading) return null;
 
@@ -33,15 +61,16 @@ const BottleneckPopup = () => {
     <div
       style={{
         position: "fixed",
-        bottom: "20px",
+        top: "20px",
         right: "20px",
-        width: "350px",
-        background: "#0009",
-        borderRadius: "8px",
-        boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
-        padding: "15px",
         zIndex: 1000,
-        borderLeft: "5px solid #e74c3c",
+        backgroundColor: "#2c3e50",
+        padding: "15px",
+        borderRadius: "8px",
+        width: "320px",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+        color: "#fff",
+        fontFamily: "Arial, sans-serif",
       }}
     >
       <div
@@ -49,9 +78,12 @@ const BottleneckPopup = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          marginBottom: "10px",
         }}
       >
-        <h3 style={{ margin: 0, color: "#e74c3c" }}>检测到网络瓶颈</h3>
+        <h3 style={{ margin: 0, fontSize: "1.2rem" }}>
+          ⚠️ Alertas de Fibra Óptica
+        </h3>
         <button
           onClick={() => setVisible(false)}
           style={{
@@ -59,42 +91,85 @@ const BottleneckPopup = () => {
             border: "none",
             cursor: "pointer",
             fontSize: "1.2rem",
-            color: "#7f8c8d",
+            color: "#ccc",
           }}
         >
           ×
         </button>
       </div>
 
-      <div style={{ marginTop: "10px" }}>
-        {bottlenecks.map((bottleneck, index) => (
-          <div
-            key={index}
-            style={{
-              marginBottom: "10px",
-              padding: "10px",
-              background: "#0009",
-              borderRadius: "4px",
-            }}
-          >
-            <div style={{ fontWeight: "bold" }}>光纤: {bottleneck.sn}</div>
-            <div>
-              使用量: {bottleneck.usage} / {bottleneck.capacity}
-            </div>
-            <div>利用率: {bottleneck.utilization_percentage}%</div>
+      <div>
+        {bottlenecks.map((bottleneck, index) => {
+          const status = getFiberStatus(bottleneck.utilization_percentage);
+          const statusMsg = getStatusMessage(status);
+
+          return (
             <div
+              key={index}
               style={{
-                color:
-                  bottleneck.utilization_percentage > 90
-                    ? "#e74c3c"
-                    : "#f39c12",
-                fontWeight: "bold",
+                marginBottom: "15px",
+                padding: "12px",
+                backgroundColor: `${
+                  status === "red"
+                    ? "#ff4444"
+                    : status === "yellow"
+                    ? "#ffbb33"
+                    : "#00C851"
+                }20`,
+                borderLeft: `4px solid ${
+                  status === "red"
+                    ? "#ff4444"
+                    : status === "yellow"
+                    ? "#ffbb33"
+                    : "#00C851"
+                }`,
+                borderRadius: "4px",
               }}
             >
-              {bottleneck.utilization_percentage > 90 ? "严重告警" : "警告"}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "6px",
+                }}
+              >
+                <span style={{ fontSize: "18px", marginRight: "8px" }}>
+                  {statusMsg.icon}
+                </span>
+                <strong>{statusMsg.message}</strong>
+              </div>
+
+              <div>
+                Fibra: <strong>{bottleneck.sn}</strong>
+              </div>
+              <div>
+                Uso:{" "}
+                <strong>
+                  {bottleneck.usage} / {bottleneck.capacity}
+                </strong>
+              </div>
+              <div>
+                Utilización:{" "}
+                <strong>{bottleneck.utilization_percentage}%</strong>
+              </div>
+
+              {/* Recomendaciones */}
+              {status !== "blue" && (
+                <div
+                  style={{
+                    marginTop: "8px",
+                    fontStyle: "italic",
+                    fontSize: "0.9em",
+                    color: "#ddd",
+                  }}
+                >
+                  Recomendación: Considerar reforzar capacidad o redirigir
+                  tráfico.
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

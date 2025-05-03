@@ -164,39 +164,26 @@ def calculate_fibcab_parameters(db: Session, fibcab_sn: str):
 }
 
 
-
-def identify_bottlenecks(db: Session, threshold: float = 0.6) -> List[Dict]:
+def identify_bottlenecks(db: Session, device_sn: str, threshold: float = 0.6) -> List[Dict]:
     """
-    Identifica los cuellos de botella en las fibras (fibcabs) basándose en su uso y capacidad.
-
-    Args:
-        db (Session): Sesión de la base de datos.
-        threshold (float): Umbral de utilización para considerar un cuello de botella (por defecto 80%).
-
-    Returns:
-        List[Dict]: Lista de cuellos de botella con detalles.
+    Identifica cuellos de botella para un dispositivo específico.
     """
-    bottlenecks = ["Hola"]
+    bottlenecks = []
 
-    # Obtener todas las fibras con su configuración y estado en una sola consulta
+    # Obtener solo las fibras que coincidan con device_sn
     fibcabs_with_config_and_state = (
         db.query(FibcabDevInfo, FibcabDevConfig, FibcabDevState)
         .join(FibcabDevConfig, FibcabDevInfo.sn == FibcabDevConfig.sn)
         .join(FibcabDevState, FibcabDevInfo.sn == FibcabDevState.sn)
+        .filter(FibcabDevInfo.sn == device_sn)
         .all()
     )
 
     for fibcab, fibcab_config, fibcab_state in fibcabs_with_config_and_state:
-        # Uso actual y capacidad máxima
-        usage = fibcab_state.health_point or 0  # Ejemplo: usar health_point como proxy del uso
+        usage = fibcab_state.health_point or 0
         capacity = fibcab_config.ficab_capacity or 1  # Evitar división por cero
 
-        # Calcular si hay un cuello de botella
-        if capacity == 0:
-            print(f"Advertencia: Capacidad cero para la fibra SN {fibcab.sn}. Se omite.")
-            continue
-
-        utilization_percentage = usage / capacity * 100
+        utilization_percentage = (usage / capacity) * 100
 
         if utilization_percentage > threshold * 100:
             bottlenecks.append({
