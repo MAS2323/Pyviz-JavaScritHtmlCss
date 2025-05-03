@@ -9,26 +9,24 @@ const getSerialNumber = (sn) => {
   return sn;
 };
 
-
 // helpers/api.js
 export const fetchFibcabStatus = async (sn) => {
   try {
     const response = await fetch(`${API_BASE_URL}/fibcab/${sn}/status`);
 
-    // Debug: imprime texto si hay error
     if (!response.ok) {
       const text = await response.text();
-      console.error("Response was not OK:", text);
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.error("Error en fetchFibcabStatus:", text);
+      return null;
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error(`Error fetching status for SN ${sn}:`, error.message);
+    console.error(`Error obteniendo estado para SN ${sn}:`, error.message);
     return null;
   }
 };
-
 export const fetchDevice = async (sn) => {
   const serialNumber = getSerialNumber(sn);
   if (!serialNumber) {

@@ -15,8 +15,8 @@ const FiberColors = {
   blue: Cesium.Color.BLUE.withAlpha(0.7),
   yellow: Cesium.Color.YELLOW.withAlpha(0.7),
   red: Cesium.Color.RED.withAlpha(0.7),
+  green: Cesium.Color.LIME.withAlpha(0.7), // Añadimos verde como LIME
 };
-
 const DeviceLayer = () => {
   const { viewer } = useCesium();
   const [selectedEntity, setSelectedEntity] = useState(null);
@@ -80,35 +80,34 @@ const DeviceLayer = () => {
       for (const [sn, entity] of Object.entries(entitiesMap)) {
         try {
           const status = await fetchFibcabStatus(sn);
-          updateFiberColor(entity, status.fiber_color);
 
-          // Actualizar datos de la entidad si es la seleccionada
-          if (
-            selectedEntity &&
-            selectedEntity.data &&
-            selectedEntity.data.sn === sn
-          ) {
-            setSelectedEntity({
-              ...selectedEntity,
-              data: {
-                ...selectedEntity.data,
-                ...status,
-              },
-            });
+          if (status?.fiber_color) {
+            updateFiberColor(entity, status.fiber_color); // Actualiza el color
+
+            if (selectedEntity?.data.sn === sn) {
+              setSelectedEntity({
+                ...selectedEntity,
+                data: { ...selectedEntity.data, ...status },
+              });
+            }
           }
         } catch (error) {
-          console.error(`Error updating status for fiber ${sn}:`, error);
+          console.error(`Error actualizando estado de fibra ${sn}:`, error);
         }
       }
-    }, 30000); // Actualizar cada 30 segundos
+    }, 30000);
 
     return () => clearInterval(intervalId);
   };
 
   const updateFiberColor = (entity, color) => {
-    if (entity && entity.polyline) {
-      entity.polyline.material = FiberColors[color] || FiberColors.blue;
-    }
+    if (!entity || !entity.polyline) return;
+
+    // Forza la actualización del color
+    entity.polyline.material = FiberColors[color] || FiberColors.green;
+
+    // Opcional: muestra una notificación o log
+    console.log(`Fibra ${entity.data.sn} actualizada a color: ${color}`);
   };
 
   const renderPopups = () => {
@@ -196,25 +195,25 @@ const addFibcabEntity = async (viewer, fibcab) => {
     0
   );
 
-  let fiberColor = "blue";
+  let fiberColor = "green"; // Por defecto verde (no hay problemas)
 
   try {
     const status = await fetchFibcabStatus(fibcab.sn);
-    if (status && status.fiber_color) {
+
+    if (status && status.fiber_color && FiberColors[status.fiber_color]) {
       fiberColor = status.fiber_color;
+    } else {
+      console.warn(`Usando color por defecto para ${fibcab.sn}`);
     }
   } catch (error) {
-    console.error(
-      `Error getting initial status for fiber ${fibcab.sn}:`,
-      error
-    );
+    console.error(`Error obteniendo estado para ${fibcab.sn}:`, error);
   }
 
   return viewer.entities.add({
     polyline: {
       positions: [startPosition, endPosition],
       width: 5,
-      material: FiberColors[fiberColor] || FiberColors.blue,
+      material: FiberColors[fiberColor], // 👈 Aquí usas el color
       clampToGround: true,
     },
     data: {
