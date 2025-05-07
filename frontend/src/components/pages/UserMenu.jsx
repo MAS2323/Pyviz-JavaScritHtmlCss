@@ -1,20 +1,58 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { getUserById, logoutUser } from "../../helpers/api";
 import "./styles/UserMenu.css";
 
 export default function UserMenu({ closeMenu, onLogout }) {
-  const user = {
-    name: "Mas Onewe", // 翻译为中文名字（假设的音译）
-    email: "masonewe@gmail.com",
-    avatar: "https://via.placeholder.com/40",
-  };
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          throw new Error("用户ID未找到，请重新登录");
+        }
+        console.log("尝试获取用户ID:", userId); // 调试输出
+        const userData = await getUserById(userId);
+        setUser({
+          name: userData.username,
+          email: userData.email,
+          avatar: "https://via.placeholder.com/40",
+        });
+      } catch (err) {
+        console.error("获取用户信息失败:", err);
+        setError(err.message);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleLogout = () => {
-    onLogout(); // 触发登出功能
-    closeMenu(); // 登出后关闭菜单
+    logoutUser();
+    onLogout();
+    closeMenu();
   };
+
+  if (!user && error) {
+    return (
+      <div className="user-menu">
+        <p className="error">{error}</p>
+        <button className="menu-option" onClick={handleLogout}>
+          <i className="fas fa-sign-out-alt" />
+          登出
+        </button>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <div>加载中...</div>;
+  }
 
   return (
     <div className="user-menu">
+      {error && <p className="error">{error}</p>}
       <div className="user-profile">
         <img src={user.avatar} alt={user.name} className="user-avatar" />
         <div className="user-info">
@@ -22,12 +60,7 @@ export default function UserMenu({ closeMenu, onLogout }) {
           <span className="user-email">{user.email}</span>
         </div>
       </div>
-      {/* <button className="manage-account-btn">管理您的Google帐户</button> */}
       <div className="menu-options">
-        <button className="menu-option">
-          <i className="fas fa-user-plus" />
-          添加另一个帐户
-        </button>
         <button className="menu-option" onClick={handleLogout}>
           <i className="fas fa-sign-out-alt" />
           登出

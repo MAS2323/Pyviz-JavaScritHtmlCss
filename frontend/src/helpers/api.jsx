@@ -741,3 +741,73 @@ export const fetchCesiumConfig = async () => {
     throw error;
   }
 };
+
+// ==================== FUNCIONES PARA AUTENTICACIÓN ====================
+
+export async function registerUser(userData) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || "Registration failed");
+    }
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function loginUser(credentials) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || "Login failed");
+    }
+    localStorage.setItem("token", data.access_token);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getUserById(userId) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("未找到令牌");
+  }
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      method: "GET", // 确保使用 GET 方法
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || "获取用户信息失败");
+    }
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// 用户登出
+export function logoutUser() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
+}

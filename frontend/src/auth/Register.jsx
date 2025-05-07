@@ -1,49 +1,56 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "../helpers/api";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log("Registration submitted");
-    // After registration, you might want to automatically log in
-    navigate("/login");
+    try {
+      const userData = await registerUser({ username, email, password });
+      localStorage.setItem("userId", userData.id); // 存储用户ID
+      console.log("注册成功，用户ID:", userData.id); // 调试输出
+      navigate("/login");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
     <div className="auth-container">
-      <h1>Register</h1>
+      <h1>注册</h1>
+      {error && <p className="error">{error}</p>}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Username"
+          placeholder="用户名"
           required
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
         <input
           type="email"
-          placeholder="Email"
+          placeholder="电子邮件"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="password"
-          placeholder="Password"
+          placeholder="密码"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">Register</button>
+        <button type="submit">注册</button>
       </form>
       <p>
-        Already have an account? <Link to="/login">Login here</Link>
+        已有账号？ <Link to="/login">点击此处登录</Link>
       </p>
     </div>
   );

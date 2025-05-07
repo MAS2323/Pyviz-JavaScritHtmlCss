@@ -1,112 +1,97 @@
-/* FileMenu.css - Enhanced styles for a more visual and attractive FileMenu */
-
-/* Contenedor principal del popup */
-.file-menu-popup.right-side {
+.file-menu-popup {
   position: fixed;
-  top: 50%;
-  right: 20px;
-  transform: translateY(-50%);
-  z-index: 1000;
+  top: 320px;
+  left: -800px;
+  transform: translate(-50%, -50%);
+  min-width: 300px;
+  max-width: 600px;
   max-height: 80vh;
-  overflow: hidden;
-  width: 400px; /* Slightly wider for better readability */
-  margin-top: 300px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.file-menu-popup.right-side:hover {
-  transform: translateY(-50%) scale(1.02); /* Slight scale on hover */
-  /* box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8); */
-}
-
-/* Contenedor interno */
-.file-menu-container {
-  padding: 20px;
-  background: linear-gradient(
-    135deg,
-    #1e1e1e 0%,
-    #2d2d2d 100%
-  ); /* Gradient background */
-  color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
-  max-height: 70vh;
+  background-color: #1a1a1a;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  color: #eee;
+  font-family: Arial, sans-serif;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
-  border: 1px solid #555;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif; /* Modern font stack */
+  padding: 0;
 }
 
-/* Pestañas del menú */
+/* Header */
+.file-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: none;
+  border-bottom: 1px solid #333;
+}
+
+.file-menu-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-button:hover {
+  color: #fff;
+}
+
+/* Tabs */
 .file-menu-tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 15px;
+  padding: 0 20px;
+  border-bottom: 1px solid #333;
+  background: #1a1a1a;
   overflow-x: auto;
-  padding-bottom: 5px;
-  background: #252525;
-  padding: 10px;
-  border-radius: 8px;
 }
 
 .file-menu-tab {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: #444;
-  color: #ddd;
+  flex: 1;
+  padding: 10px;
   border: none;
-  border-radius: 6px;
+  background: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  color: #aaa;
+  transition: all 0.2s ease;
   white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.file-menu-tab:hover {
-  background: #555;
-  transform: translateY(-2px); /* Slight lift on hover */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .file-menu-tab.active {
-  background: linear-gradient(
-    135deg,
-    #007bff,
-    #00c4ff
-  ); /* Gradient for active tab */
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.5);
-  transform: translateY(-2px);
+  color: #4af;
+  border-bottom: 2px solid #4af;
+  font-weight: bold;
 }
 
-.tab-icon {
-  font-size: 14px;
+.file-menu-tab:hover {
+  color: #fff;
 }
 
-/* Contenido del menú */
+/* Content */
 .file-menu-content {
   flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  animation: fadeIn 0.5s ease; /* Fade-in animation for content */
+  overflow-y: auto;
+  padding: 20px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.file-menu-content::-webkit-scrollbar {
+  display: none;
 }
 
 .file-menu-title {
@@ -115,11 +100,10 @@
   font-weight: 600;
   color: #fff;
   padding-bottom: 8px;
-  border-bottom: 2px solid #007bff; /* Blue underline */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  border-bottom: 2px solid #4af;
 }
 
-/* Tabla de datos */
+/* Table Container */
 .file-menu-table-container {
   flex: 1;
   overflow: auto;
@@ -144,12 +128,11 @@
 }
 
 .file-menu-table th {
-  background: linear-gradient(135deg, #333, #444); /* Gradient for headers */
+  background: linear-gradient(135deg, #333, #444);
   position: sticky;
   top: 0;
   font-weight: 600;
   color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
@@ -158,34 +141,14 @@
 }
 
 .file-menu-table tr:nth-child(even) {
-  background: linear-gradient(
-    90deg,
-    #252525,
-    #2a2a2a
-  ); /* Subtle gradient for even rows */
+  background: linear-gradient(90deg, #252525, #2a2a2a);
 }
 
 .file-menu-table tr:hover {
-  background: linear-gradient(90deg, #2d2d2d, #353535); /* Hover gradient */
-  transform: translateX(2px); /* Slight shift on hover */
+  background: linear-gradient(90deg, #2d2d2d, #353535);
 }
 
-.table-row {
-  animation: slideIn 0.5s ease forwards; /* Slide-in animation for rows */
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Estados del menú */
+/* States */
 .file-menu-loading,
 .file-menu-empty,
 .file-menu-error {
@@ -205,24 +168,6 @@
   background: rgba(0, 196, 255, 0.1);
 }
 
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 3px solid #00c4ff;
-  border-top: 3px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
 .file-menu-empty {
   color: #aaa;
   background: rgba(170, 170, 170, 0.1);
@@ -231,11 +176,6 @@
 .file-menu-error {
   color: #ff6b6b;
   background: rgba(255, 107, 107, 0.1);
-}
-
-.empty-icon,
-.error-icon {
-  font-size: 18px;
 }
 
 /* Scrollbar */
@@ -250,37 +190,47 @@
 }
 
 .file-menu-table-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    135deg,
-    #007bff,
-    #00c4ff
-  ); /* Gradient scrollbar */
+  background: linear-gradient(135deg, #4af, #00c4ff);
   border-radius: 4px;
-  transition: background 0.3s ease;
 }
 
 .file-menu-table-container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #0056b3, #0096cc);
+  background: linear-gradient(135deg, #38e, #0096cc);
 }
 
-/* Media Queries para responsive */
+/* Responsivity */
 @media (max-width: 768px) {
-  .file-menu-popup.right-side {
-    width: 350px;
-    right: 15px;
+  .file-menu-popup {
+    width: 90%;
+    max-width: 500px;
+    min-width: 300px;
   }
 
-  .file-menu-container {
-    padding: 15px;
+  .file-menu-header {
+    padding: 10px 15px;
+  }
+
+  .file-menu-header h2 {
+    font-size: 18px;
+  }
+
+  .close-button {
+    font-size: 20px;
+  }
+
+  .file-menu-tabs {
+    flex-wrap: wrap;
+    padding: 0 15px;
   }
 
   .file-menu-tab {
-    padding: 6px 12px;
+    flex: 1 1 45%;
     font-size: 12px;
+    padding: 8px;
   }
 
-  .tab-icon {
-    font-size: 12px;
+  .file-menu-content {
+    padding: 15px;
   }
 
   .file-menu-title {
@@ -298,39 +248,38 @@
   .file-menu-error {
     font-size: 13px;
   }
-
-  .spinner,
-  .empty-icon,
-  .error-icon {
-    width: 18px;
-    height: 18px;
-  }
 }
 
-@media (max-width: 576px) {
-  .file-menu-popup.right-side {
-    width: 320px;
-    top: 60px;
-    right: 10px;
-    transform: none;
-    max-height: calc(100vh - 80px);
+@media (max-width: 480px) {
+  .file-menu-popup {
+    width: 95%;
+    max-width: 400px;
   }
 
-  .file-menu-container {
-    max-height: calc(100vh - 100px);
+  .file-menu-header h2 {
+    font-size: 16px;
+  }
+
+  .close-button {
+    font-size: 18px;
   }
 
   .file-menu-tabs {
-    gap: 6px;
+    padding: 0 10px;
   }
 
   .file-menu-tab {
-    padding: 5px 10px;
+    flex: 1 1 100%;
     font-size: 11px;
+    padding: 6px;
   }
 
-  .tab-icon {
-    font-size: 11px;
+  .file-menu-content {
+    padding: 10px;
+  }
+
+  .file-menu-title {
+    font-size: 14px;
   }
 
   .file-menu-table th,
@@ -338,25 +287,10 @@
     padding: 6px 8px;
     font-size: 11px;
   }
-}
 
-@media (max-width: 400px) {
-  .file-menu-popup.right-side {
-    width: calc(100% - 20px);
-    right: 10px;
-    left: 10px;
-  }
-
-  .file-menu-tab {
-    padding: 4px 8px;
-    font-size: 10px;
-  }
-
-  .tab-icon {
-    font-size: 10px;
-  }
-
-  .file-menu-title {
-    font-size: 14px;
+  .file-menu-loading,
+  .file-menu-empty,
+  .file-menu-error {
+    font-size: 12px;
   }
 }
