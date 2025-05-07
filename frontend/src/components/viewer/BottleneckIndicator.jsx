@@ -1,13 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { fetchBottlenecks } from "../../helpers/api";
 
 const BottleneckIndicator = ({
+  deviceSn,
   capacity,
   health,
   usage_percentage,
   fiber_status,
 }) => {
+  const [bottleneckData, setBottleneckData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (deviceSn) {
+        setLoading(true);
+        try {
+          const data = await fetchBottlenecks(deviceSn);
+          if (data && data.length > 0) {
+            setBottleneckData(data[0]); // Use the first bottleneck if multiple are returned
+          }
+        } catch (error) {
+          console.error("Error fetching bottlenecks for device:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [deviceSn]);
+
   const getStatusMessage = () => {
-    switch (fiber_status) {
+    const status = bottleneckData
+      ? bottleneckData.fiber_status || fiber_status
+      : fiber_status;
+    switch (status) {
       case "red":
         return {
           message: "状态：危急 - 需要立即处理",
@@ -30,6 +58,12 @@ const BottleneckIndicator = ({
   };
 
   const status = getStatusMessage();
+  const currentCapacity = bottleneckData?.capacity || capacity;
+  const currentHealth = bottleneckData?.health || health;
+  const currentUsage = bottleneckData?.usage_percentage || usage_percentage;
+  const currentFiberStatus = bottleneckData?.fiber_status || fiber_status;
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div
@@ -53,20 +87,22 @@ const BottleneckIndicator = ({
 
       <div style={{ marginTop: "10px" }}>
         <div>
-          当前使用率: <strong>{usage_percentage}%</strong> 容量
+          当前使用率: <strong>{currentUsage}%</strong> 容量
         </div>
         <div>
-          总容量: <strong>{capacity} Gbps</strong>
+          总容量: <strong>{currentCapacity} Gbps</strong>
         </div>
         <div>
-          健康度: <strong>{health}%</strong>
+          健康度: <strong>{currentHealth}%</strong>
         </div>
       </div>
 
-      {fiber_status !== "blue" && (
+      {currentFiberStatus !== "blue" && (
         <div style={{ marginTop: "10px", fontStyle: "italic" }}>
           建议:{" "}
-          {fiber_status === "red" ? "需紧急维护或扩容" : "下次维护时考虑优化"}
+          {currentFiberStatus === "red"
+            ? "需紧急维护或扩容"
+            : "下次维护时考虑优化"}
         </div>
       )}
     </div>

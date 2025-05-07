@@ -6,13 +6,13 @@ import {
   flyToInitialPosition,
 } from "../cesium/cesiumConfig";
 import Toolbar from "../viewer/Toolbar";
-import Footer from "../viewer/Footer";
 import CameraInfo from "./CameraInfo";
 import ErrorBoundary from "./ErrorBoundary";
 import DeviceLayer from "../DeviceLayer";
 import FloatingButtons from "../viewer/FloatingButtons";
-import "./CesiumViewer.css"; 
+import "./CesiumViewer.css";
 import BottleneckPopup from "../viewer/BottleneckPopup";
+import BottleneckIndicator from "../viewer/BottleneckIndicator";
 
 const CesiumViewer = ({ onLogout }) => {
   const cesiumContainerRef = useRef(null);
@@ -20,6 +20,8 @@ const CesiumViewer = ({ onLogout }) => {
   const { viewer, setViewer } = useCesium();
   const [roadNetworkEnabled, setRoadNetworkEnabled] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [showBottleneck, setShowBottleneck] = useState(false);
+  const [bottleneckData, setBottleneckData] = useState(null);
 
   // Handle window resize
   useEffect(() => {
@@ -61,6 +63,24 @@ const CesiumViewer = ({ onLogout }) => {
     };
   }, [isMobile]);
 
+  // Update bottleneck data when a new entity is selected
+  useEffect(() => {
+    if (viewer && viewer.selectedEntity) {
+      const entityData = viewer.selectedEntity.data;
+      if (entityData && entityData.fiber_color) {
+        setBottleneckData({
+          capacity: entityData.capacity || 100,
+          health: entityData.health || 95,
+          usage_percentage: entityData.usage_percentage || 70,
+          fiber_status: entityData.fiber_color,
+        });
+        setShowBottleneck(true);
+      } else {
+        setShowBottleneck(false);
+      }
+    }
+  }, [viewer?.selectedEntity]);
+
   const handleLayerChange = (layerType) => {
     if (viewerRef.current) {
       addTiandituLayers(viewerRef.current, layerType, roadNetworkEnabled);
@@ -80,26 +100,38 @@ const CesiumViewer = ({ onLogout }) => {
       {viewer && <DeviceLayer />}
       {viewer && (
         <ErrorBoundary>
-          <CameraInfo />
+          <div style={{ zIndex: 100 }}>
+            <CameraInfo />
+          </div>
         </ErrorBoundary>
       )}
       {viewer && (
-        <FloatingButtons
-          onLayerChange={handleLayerChange}
-          onToggleRoadNetwork={handleToggleRoadNetwork}
-          roadNetworkEnabled={roadNetworkEnabled}
-          isMobile={isMobile}
-        />
+        <div style={{ zIndex: 100 }}>
+          <FloatingButtons
+            onLayerChange={handleLayerChange}
+            onToggleRoadNetwork={handleToggleRoadNetwork}
+            roadNetworkEnabled={roadNetworkEnabled}
+            isMobile={isMobile}
+          />
+        </div>
       )}
-      {viewer && <BottleneckPopup />}
       {viewer && (
-        <Toolbar
-          viewer={viewer}
-          isMobile={isMobile}
-          onLogout={onLogout} // Pass onLogout to Toolbar
-        />
+        <Toolbar viewer={viewer} isMobile={isMobile} onLogout={onLogout} />
       )}
-      {viewer && <Footer isMobile={isMobile} />}
+      {viewer && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "0px", // Position at the very bottom to occupy the footer area
+            left: 0,
+            right: 0,
+            width: "100%",
+            zIndex: 10, // Lower zIndex to appear below CameraInfo and FloatingButtons
+          }}
+        >
+          <BottleneckPopup />
+        </div>
+      )}
     </div>
   );
 };

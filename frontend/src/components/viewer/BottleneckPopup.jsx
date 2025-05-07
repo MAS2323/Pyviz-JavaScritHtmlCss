@@ -1,175 +1,115 @@
-import React, { useEffect, useState } from "react";
-import { fetchBottlenecks } from "../../helpers/api";
+import React, { useEffect, useState, useRef } from "react";
+import { fetchAllBottlenecks } from "../../helpers/api";
+import "./styles/BottleneckPopup.css";
 
 const BottleneckPopup = () => {
   const [bottlenecks, setBottlenecks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [visible, setVisible] = useState(false);
+  const [visible] = useState(true);
+  const tickerRef = useRef(null);
 
   useEffect(() => {
     const checkBottlenecks = async () => {
       setLoading(true);
       try {
-        const data = await fetchBottlenecks();
+        const data = await fetchAllBottlenecks();
         setBottlenecks(data || []);
-        setVisible((data || []).length > 0);
       } catch (error) {
-        console.error("Error fetching bottlenecks:", error);
-        setVisible(false);
+        console.error("获取瓶颈信息失败:", error);
         setBottlenecks([]);
       } finally {
         setLoading(false);
       }
     };
 
-    // Ejecutar inmediatamente y luego cada 5 minutos
     checkBottlenecks();
     const interval = setInterval(checkBottlenecks, 300000);
 
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const ticker = tickerRef.current;
+    if (ticker && visible) {
+      const totalWidth = ticker.scrollWidth;
+      const animationDuration = totalWidth / 50;
+
+      const startAnimation = () => {
+        ticker.style.animation = "none";
+        ticker.offsetHeight;
+        ticker.style.animation = `ticker ${animationDuration}s linear forwards`;
+      };
+
+      startAnimation();
+
+      const handleAnimationEnd = () => {
+        setTimeout(() => {
+          startAnimation();
+        }, 20000);
+      };
+
+      ticker.addEventListener("animationend", handleAnimationEnd);
+
+      return () => {
+        ticker.removeEventListener("animationend", handleAnimationEnd);
+      };
+    }
+  }, [bottlenecks, loading]);
+
   const getFiberStatus = (percentage) => {
-    if (percentage > 90) return "red"; // crítico
-    if (percentage > 70) return "yellow"; // advertencia
-    return "blue"; // normal
+    if (percentage > 90) return "red";
+    if (percentage > 70) return "yellow";
+    return "blue";
   };
 
   const getStatusMessage = (status) => {
     switch (status) {
       case "red":
         return {
-          message: "Estado CRÍTICO - Necesita atención inmediata",
+          message: "状态：危急 - 需要立即处理",
           icon: "🔴",
+          color: "#ff4444",
         };
       case "yellow":
         return {
-          message: "Estado de ADVERTENCIA - Monitorear",
+          message: "状态：警告 - 请监控",
           icon: "🟡",
+          color: "#ffbb33",
         };
       default:
         return {
-          message: "Estado NORMAL - Operando correctamente",
+          message: "状态：正常 - 运行良好",
           icon: "🔵",
+          color: "#00C851",
         };
     }
   };
 
-  if (!visible || loading) return null;
+  const tickerItems = loading
+    ? ["加载中..."]
+    : bottlenecks.length > 0
+    ? bottlenecks.flatMap((bottleneck, index) => {
+        const status = getFiberStatus(bottleneck.utilization_percentage);
+        const statusMsg = getStatusMessage(status);
+        return [
+          `${statusMsg.icon} ${statusMsg.message}`,
+          `光纤编号: ${bottleneck.sn}`,
+          `使用量: ${bottleneck.usage} / ${bottleneck.capacity}`,
+          `利用率: ${bottleneck.utilization_percentage}%`,
+          status !== "blue" ? "建议: 考虑提升容量或分流流量" : "",
+        ].filter((item) => item);
+      })
+    : ["🔵 目前没有光纤瓶颈问题 - 系统运行正常"];
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: "20px",
-        right: "20px",
-        zIndex: 1000,
-        backgroundColor: "#2c3e50",
-        padding: "15px",
-        borderRadius: "8px",
-        width: "320px",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-        color: "#fff",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "10px",
-        }}
-      >
-        <h3 style={{ margin: 0, fontSize: "1.2rem" }}>
-          ⚠️ Alertas de Fibra Óptica
-        </h3>
-        <button
-          onClick={() => setVisible(false)}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "1.2rem",
-            color: "#ccc",
-          }}
-        >
-          ×
-        </button>
-      </div>
-
-      <div>
-        {bottlenecks.map((bottleneck, index) => {
-          const status = getFiberStatus(bottleneck.utilization_percentage);
-          const statusMsg = getStatusMessage(status);
-
-          return (
-            <div
-              key={index}
-              style={{
-                marginBottom: "15px",
-                padding: "12px",
-                backgroundColor: `${
-                  status === "red"
-                    ? "#ff4444"
-                    : status === "yellow"
-                    ? "#ffbb33"
-                    : "#00C851"
-                }20`,
-                borderLeft: `4px solid ${
-                  status === "red"
-                    ? "#ff4444"
-                    : status === "yellow"
-                    ? "#ffbb33"
-                    : "#00C851"
-                }`,
-                borderRadius: "4px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "6px",
-                }}
-              >
-                <span style={{ fontSize: "18px", marginRight: "8px" }}>
-                  {statusMsg.icon}
-                </span>
-                <strong>{statusMsg.message}</strong>
-              </div>
-
-              <div>
-                Fibra: <strong>{bottleneck.sn}</strong>
-              </div>
-              <div>
-                Uso:{" "}
-                <strong>
-                  {bottleneck.usage} / {bottleneck.capacity}
-                </strong>
-              </div>
-              <div>
-                Utilización:{" "}
-                <strong>{bottleneck.utilization_percentage}%</strong>
-              </div>
-
-              {/* Recomendaciones */}
-              {status !== "blue" && (
-                <div
-                  style={{
-                    marginTop: "8px",
-                    fontStyle: "italic",
-                    fontSize: "0.9em",
-                    color: "#ddd",
-                  }}
-                >
-                  Recomendación: Considerar reforzar capacidad o redirigir
-                  tráfico.
-                </div>
-              )}
-            </div>
-          );
-        })}
+    <div className="bottleneck-popup">
+      <div ref={tickerRef} className="ticker-content">
+        {tickerItems.map((item, index) => (
+          <span key={index}>{item}</span>
+        ))}
+        {tickerItems.map((item, index) => (
+          <span key={`duplicate-${index}`}>{item}</span>
+        ))}
       </div>
     </div>
   );

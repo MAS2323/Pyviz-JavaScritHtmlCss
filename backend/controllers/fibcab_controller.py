@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from models.fibcab_models import FibcabDevInfo, FibcabDevConfig, FibcabDevState
 from schemas.fibcab_schemas import FibcabDevInfoSchema, FibcabDevConfigSchema, FibcabDevStateSchema
 from sqlalchemy.orm import joinedload
-from typing import List, Dict
+from typing import List, Dict, Optional
 from math import radians, sin, cos, sqrt, atan2
 # Crear un registro en fibcab_dev_info
 def create_fibcab_dev_info(db: Session, fibcab_dev_info: FibcabDevInfoSchema):
@@ -164,20 +164,22 @@ def calculate_fibcab_parameters(db: Session, fibcab_sn: str):
 }
 
 
-def identify_bottlenecks(db: Session, device_sn: str, threshold: float = 0.6) -> List[Dict]:
+def identify_bottlenecks(db: Session, device_sn: Optional[str] = None, threshold: float = 0.6) -> List[Dict]:
     """
-    Identifica cuellos de botella para un dispositivo específico.
+    Identifica cuellos de botella. Si se proporciona device_sn, filtra por ese dispositivo.
     """
     bottlenecks = []
 
-    # Obtener solo las fibras que coincidan con device_sn
-    fibcabs_with_config_and_state = (
+    query = (
         db.query(FibcabDevInfo, FibcabDevConfig, FibcabDevState)
         .join(FibcabDevConfig, FibcabDevInfo.sn == FibcabDevConfig.sn)
         .join(FibcabDevState, FibcabDevInfo.sn == FibcabDevState.sn)
-        .filter(FibcabDevInfo.sn == device_sn)
-        .all()
     )
+
+    if device_sn:
+        query = query.filter(FibcabDevInfo.sn == device_sn)
+
+    fibcabs_with_config_and_state = query.all()
 
     for fibcab, fibcab_config, fibcab_state in fibcabs_with_config_and_state:
         usage = fibcab_state.health_point or 0
@@ -194,7 +196,6 @@ def identify_bottlenecks(db: Session, device_sn: str, threshold: float = 0.6) ->
             })
 
     return bottlenecks
-
 
 def calculate_health_score(warnings, crises):
     """

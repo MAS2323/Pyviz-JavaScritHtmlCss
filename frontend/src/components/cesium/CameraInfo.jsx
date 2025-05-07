@@ -47,7 +47,7 @@ const CameraInfo = () => {
     <div
       style={{
         position: "absolute",
-        bottom: 20,
+        bottom: 50,
         left: 20,
         background: "#1a1a1a",
         color: "#fff",

@@ -311,6 +311,15 @@ export const calculateFibcabParameters = async (fibcabSn) => {
     );
   }
 };
+export const fetchAllBottlenecks = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/fibcab/bottlenecks`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener todos los cuellos de botella:", error);
+    return handleFetchError(error, "obteniendo todos los cuellos de botella");
+  }
+};
 
 export const fetchBottlenecks = async (deviceSn = null) => {
   try {
