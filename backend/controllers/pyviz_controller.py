@@ -14,12 +14,8 @@ from geojson import Feature, FeatureCollection, Point, LineString
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
-
 def process_device_data_with_pyviz(db: Session):
-    """
-    Procesa datos de dispositivos para visualización con PyViz.
-    Retorna un GeoJSON con información de dispositivos.
-    """
+    # 获取所有设备信息
     devices = db.query(DeviceInfo).all()
 
     data = [
@@ -33,7 +29,6 @@ def process_device_data_with_pyviz(db: Session):
         for device in devices
     ]
     df = pd.DataFrame(data)
-
     gdf = gpd.GeoDataFrame(
         df,
         geometry=gpd.points_from_xy(df["longitude"], df["latitude"]),

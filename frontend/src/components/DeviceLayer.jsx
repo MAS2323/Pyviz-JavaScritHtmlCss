@@ -9,13 +9,12 @@ import BottomRightPanel from "./node/RightPanel";
 import LeftPanel from "./node/LeftPanel";
 import FibcabLeftPanel from "./fibcab/FibcabLeftPanel";
 import FibcabRightPanel from "./fibcab/FibcabRightPanel";
-import * as Cesium from "cesium";
 
 const FiberColors = {
   blue: Cesium.Color.BLUE.withAlpha(0.7),
   yellow: Cesium.Color.YELLOW.withAlpha(0.7),
   red: Cesium.Color.RED.withAlpha(0.7),
-  green: Cesium.Color.LIME.withAlpha(0.7), // Añadimos verde como LIME
+  green: Cesium.Color.LIME.withAlpha(0.7),
 };
 const DeviceLayer = () => {
   const { viewer } = useCesium();

@@ -10,19 +10,19 @@ const BottleneckIndicator = ({
     switch (fiber_status) {
       case "red":
         return {
-          message: "Estado CRÍTICO - Necesita atención inmediata",
+          message: "状态：危急 - 需要立即处理",
           color: "#ff4444",
           icon: "🔴",
         };
       case "yellow":
         return {
-          message: "Estado de ADVERTENCIA - Monitorear",
+          message: "状态：警告 - 请监控",
           color: "#ffbb33",
           icon: "🟡",
         };
       default:
         return {
-          message: "Estado NORMAL - Operando correctamente",
+          message: "状态：正常 - 运行良好",
           color: "#00C851",
           icon: "🔵",
         };
@@ -53,22 +53,20 @@ const BottleneckIndicator = ({
 
       <div style={{ marginTop: "10px" }}>
         <div>
-          Uso actual: <strong>{usage_percentage}%</strong> de capacidad
+          当前使用率: <strong>{usage_percentage}%</strong> 容量
         </div>
         <div>
-          Capacidad total: <strong>{capacity} Gbps</strong>
+          总容量: <strong>{capacity} Gbps</strong>
         </div>
         <div>
-          Punto de salud: <strong>{health}%</strong>
+          健康度: <strong>{health}%</strong>
         </div>
       </div>
 
       {fiber_status !== "blue" && (
         <div style={{ marginTop: "10px", fontStyle: "italic" }}>
-          Recomendación:{" "}
-          {fiber_status === "red"
-            ? "Realizar mantenimiento urgente"
-            : "Considerar optimización en próximo mantenimiento"}
+          建议:{" "}
+          {fiber_status === "red" ? "需紧急维护或扩容" : "下次维护时考虑优化"}
         </div>
       )}
     </div>

@@ -13,7 +13,7 @@ import Welcome from "./auth/Welcome";
 import "./App.css";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(null); // Inicialmente null para indicar carga
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
 
   useEffect(() => {
     // Check if user is logged in on initial load

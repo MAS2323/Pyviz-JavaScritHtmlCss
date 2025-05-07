@@ -86,15 +86,15 @@ const FibcabLeftPanel = ({ data, onClose }) => {
   };
 
   const getStatusText = () => {
-    if (!fiberStatus) return "Estado: Cargando...";
+    if (!fiberStatus) return "状态: 加载中...";
 
     switch (fiberStatus.fiber_color) {
       case "red":
-        return "Estado: CRÍTICO";
+        return "状态: 危急";
       case "yellow":
-        return "Estado: ADVERTENCIA";
+        return "状态: 警告";
       default:
-        return "Estado: NORMAL";
+        return "状态: 正常";
     }
   };
 

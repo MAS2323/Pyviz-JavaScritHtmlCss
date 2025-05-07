@@ -11,7 +11,7 @@ import CameraInfo from "./CameraInfo";
 import ErrorBoundary from "./ErrorBoundary";
 import DeviceLayer from "../DeviceLayer";
 import FloatingButtons from "../viewer/FloatingButtons";
-import "./CesiumViewer.css"; // Import the CSS file
+import "./CesiumViewer.css"; 
 import BottleneckPopup from "../viewer/BottleneckPopup";
 
 const CesiumViewer = ({ onLogout }) => {

@@ -252,3 +252,35 @@ FROM fibcab_dev_info f;
 ```
 
 Estas consultas te permitirán obtener la información necesaria para tu aplicación de visualización de red SDH. Puedes ajustarlas según los campos específicos que necesites para tu frontend.
+
+```
+npm create vite@latest backend --template react
+cd backend
+npm install
+npm run dev
+```
+
+```
+frontend/
+│
+├── node_modules/          # Installed npm packages
+├── public/                # Static assets (not processed by Vite)
+│   └── Cesium/            # Cesium.js files
+├── src/                   # Source code of the React application
+│   ├── assets/            # Images, icons, and other static files
+│   ├── auth/              # Authentication-related components and hooks
+│   ├── components/        # Reusable UI components
+│   ├── helpers/           # Utility functions and helpers
+│   ├── hooks/             # Custom React hooks
+│   ├── App.css            # Global CSS styles
+│   ├── App.jsx            # Root component of the application
+│   ├── CesiumContext.jsx  # Context provider for Cesium integration
+│   ├── index.css          # Default CSS styling provided by Vite
+│   └── main.jsx           # Entry point of the React app
+│
+├── .gitignore             # Files and folders ignored by Git
+├── eslint.config.js       # ESLint configuration file
+├── index.html             # Development server root HTML file
+├── package-lock.json      # Auto-generated file with exact dependency versions
+└── package.json           # Project metadata and dependencies
+```

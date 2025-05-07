@@ -4,7 +4,7 @@ import {
   fetchIolpConfig,
   fetchIolpState,
 } from "../../helpers/api";
-import Popup from "./components/Popup"; // Asegúrate de que este componente exista
+import Popup from "./components/Popup"; 
 
 const LeftPanel = ({ data, onClose }) => {
   const [iolpData, setIolpData] = useState({
@@ -13,7 +13,7 @@ const LeftPanel = ({ data, onClose }) => {
     state: null,
   });
   const [loading, setLoading] = useState(false);
-  const [popupData, setPopupData] = useState(null); // Estado para el popup
+  const [popupData, setPopupData] = useState(null); 
 
   useEffect(() => {
     if (!data?.sn) return;
