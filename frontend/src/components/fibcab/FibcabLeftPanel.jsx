@@ -6,6 +6,7 @@ import {
 } from "../../helpers/api";
 import BottleneckIndicator from "../../components/viewer/BottleneckIndicator";
 import Popup from "./components/Popup";
+import "./styles/FibcabLeftPanel.css";
 
 const FibcabLeftPanel = ({ data, onClose }) => {
   const [fibcabState, setFibcabState] = useState(null);
@@ -20,7 +21,6 @@ const FibcabLeftPanel = ({ data, onClose }) => {
 
   useEffect(() => {
     if (data?.sn) {
-      // Cargar estado del dispositivo
       setLoading((prev) => ({ ...prev, state: true }));
       const fetchState = async () => {
         try {
@@ -33,7 +33,6 @@ const FibcabLeftPanel = ({ data, onClose }) => {
         }
       };
 
-      // Cargar parámetros técnicos
       setLoading((prev) => ({ ...prev, params: true }));
       const fetchParams = async () => {
         try {
@@ -46,7 +45,6 @@ const FibcabLeftPanel = ({ data, onClose }) => {
         }
       };
 
-      // Cargar estado de la fibra (color)
       setLoading((prev) => ({ ...prev, status: true }));
       const fetchStatus = async () => {
         try {
@@ -63,31 +61,28 @@ const FibcabLeftPanel = ({ data, onClose }) => {
       fetchParams();
       fetchStatus();
 
-      // Configurar actualización periódica del estado
       const intervalId = setInterval(() => {
         fetchStatus();
-      }, 30000); // Actualizar cada 30 segundos
+      }, 30000);
 
       return () => clearInterval(intervalId);
     }
   }, [data?.sn]);
 
   const getStatusColor = () => {
-    if (!fiberStatus) return "#3498db"; // Azul por defecto
-
+    if (!fiberStatus) return "#3498db";
     switch (fiberStatus.fiber_color) {
       case "red":
         return "#ff4444";
       case "yellow":
         return "#ffbb33";
       default:
-        return "#00C851"; // Verde para estado normal
+        return "#00C851";
     }
   };
 
   const getStatusText = () => {
     if (!fiberStatus) return "状态: 加载中...";
-
     switch (fiberStatus.fiber_color) {
       case "red":
         return "状态: 危急";
@@ -141,7 +136,7 @@ const FibcabLeftPanel = ({ data, onClose }) => {
         ? {
             告警日志: (
               <span
-                style={{ cursor: "pointer", color: "#3498db" }}
+                className="link"
                 onClick={() =>
                   setPopupData({
                     title: "告警日志",
@@ -169,7 +164,7 @@ const FibcabLeftPanel = ({ data, onClose }) => {
         ? {
             危机日志: (
               <span
-                style={{ cursor: "pointer", color: "#3498db" }}
+                className="link"
                 onClick={() =>
                   setPopupData({
                     title: "危机日志",
@@ -197,7 +192,7 @@ const FibcabLeftPanel = ({ data, onClose }) => {
         ? {
             原始数据: (
               <span
-                style={{ cursor: "pointer", color: "#3498db" }}
+                className="link"
                 onClick={() =>
                   setPopupData({
                     title: "原始数据",
@@ -224,25 +219,19 @@ const FibcabLeftPanel = ({ data, onClose }) => {
     };
   }
 
-  // Añadir información de estado de fibra si está disponible
   if (fiberStatus) {
     detailedInfo["状态"] = {
       ...detailedInfo["状态"],
       光纤状态: (
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div className="status-container">
           <div
-            style={{
-              width: "12px",
-              height: "12px",
-              borderRadius: "50%",
-              backgroundColor: getStatusColor(),
-              marginRight: "8px",
-            }}
+            className="status-dot"
+            style={{ backgroundColor: getStatusColor() }}
           />
           {getStatusText()}
           {fiberStatus.usage_percentage && (
-            <span style={{ marginLeft: "8px" }}>
-              (Uso: {fiberStatus.usage_percentage}%)
+            <span className="usage-percentage">
+              (使用率: {fiberStatus.usage_percentage}%)
             </span>
           )}
         </div>
@@ -251,49 +240,18 @@ const FibcabLeftPanel = ({ data, onClose }) => {
   }
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: "70px",
-        left: "20px",
-        width: "450px",
-        background: "#1a1a1a",
-        borderRadius: "8px",
-        boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-        padding: "15px",
-        zIndex: 1000,
-        maxHeight: "80vh",
-        overflowY: "auto",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h3 style={{ margin: 0, color: "#2c3e50" }}>光纤详情 - {data.sn}</h3>
-        <button
-          onClick={onClose}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "1.2rem",
-            color: "#7f8c8d",
-          }}
-        >
+    <div className="fibcab-left-panel">
+      <div className="panel-header">
+        <h3>光纤详情 - {data.sn}</h3>
+        <button onClick={onClose} className="close-button">
           ×
         </button>
       </div>
 
-      <hr style={{ margin: "10px 0", borderColor: "#ecf0f1" }} />
+      <hr className="divider" />
 
       {(loading.state || loading.params || loading.status) && (
-        <div style={{ textAlign: "center", padding: "10px", color: "#7f8c8d" }}>
-          加载中...
-        </div>
+        <div className="loading">加载中...</div>
       )}
 
       {fibcabParams && fibcabState && (
@@ -307,28 +265,21 @@ const FibcabLeftPanel = ({ data, onClose }) => {
 
       {fiberStatus && (
         <div
+          className="status-bar"
           style={{
-            marginBottom: "15px",
-            padding: "10px",
             backgroundColor: `${getStatusColor()}20`,
             borderLeft: `4px solid ${getStatusColor()}`,
-            borderRadius: "4px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center" }}>
+          <div className="status-content">
             <div
-              style={{
-                width: "16px",
-                height: "16px",
-                borderRadius: "50%",
-                backgroundColor: getStatusColor(),
-                marginRight: "10px",
-              }}
+              className="status-dot"
+              style={{ backgroundColor: getStatusColor() }}
             />
             <strong>{getStatusText()}</strong>
           </div>
           {fiberStatus.usage_percentage && (
-            <div style={{ marginTop: "5px" }}>
+            <div className="usage-text">
               使用率: <strong>{fiberStatus.usage_percentage}%</strong> of
               capacity
             </div>
@@ -337,31 +288,13 @@ const FibcabLeftPanel = ({ data, onClose }) => {
       )}
 
       {Object.entries(detailedInfo).map(([category, fields]) => (
-        <div key={category} style={{ marginBottom: "15px" }}>
-          <h4
-            style={{
-              margin: "0 0 8px 0",
-              paddingBottom: "5px",
-              borderBottom: "1px solid #ecf0f1",
-              color: "#3498db",
-            }}
-          >
-            {category}
-          </h4>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "8px",
-            }}
-          >
+        <div key={category} className="info-section">
+          <h4 className="category-title">{category}</h4>
+          <div className="info-grid">
             {Object.entries(fields).map(([label, value]) => (
               <React.Fragment key={label}>
-                <div style={{ fontWeight: "bold", color: "#7f8c8d" }}>
-                  {label}:
-                </div>
-                <div style={{ wordBreak: "break-word" }}>
+                <div className="info-label">{label}:</div>
+                <div className="info-value">
                   {typeof value === "string" ? value : value}
                 </div>
               </React.Fragment>

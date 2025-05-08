@@ -10,9 +10,8 @@ import CameraInfo from "./CameraInfo";
 import ErrorBoundary from "./ErrorBoundary";
 import DeviceLayer from "../DeviceLayer";
 import FloatingButtons from "../viewer/FloatingButtons";
-import "./CesiumViewer.css";
+import "./styles/CesiumViewer.css";
 import BottleneckPopup from "../viewer/BottleneckPopup";
-import BottleneckIndicator from "../viewer/BottleneckIndicator";
 
 const CesiumViewer = ({ onLogout }) => {
   const cesiumContainerRef = useRef(null);
