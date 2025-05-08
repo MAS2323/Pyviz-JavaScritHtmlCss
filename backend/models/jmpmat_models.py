@@ -6,9 +6,9 @@ class JmpMat(Base):
     __tablename__ = "jmpmat"
     id = Column(Integer, primary_key=True, autoincrement=True)
     gId = Column(Integer, ForeignKey("control_frames.gId"), nullable=False)
-    actNum = Column(Integer)
-    maxPorts = Column(Integer)
-    actMap = Column(String(255))
+    actNum = Column(Integer, nullable=True)
+    maxPorts = Column(Integer, nullable=True)
+    actMap = Column(String(255), nullable=True)
     sdh_sn = Column(String(50), ForeignKey("sdh_dev_info.sn"), nullable=False)
     iolp_sn = Column(String(50), ForeignKey("iolp_dev_info.sn"), nullable=False)
     sn = Column(String(50), ForeignKey("device_info.sn"), nullable=False)

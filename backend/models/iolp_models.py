@@ -5,11 +5,11 @@ from database import Base
 class IolpDevInfo(Base):
     __tablename__ = "iolp_dev_info"
     sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)
-    gId = Column(Integer, ForeignKey("control_frames.gId"), nullable=False)  # Added gId
-    tagId = Column(String(50))
-    Type = Column(String(50))
+    gId = Column(Integer, ForeignKey("control_frames.gId"), nullable=False)
+    tagId = Column(String(50), nullable=False)
+    Type = Column(String(50), nullable=False)
     device_info = relationship("DeviceInfo", back_populates="iolp_dev_info")
-    jmpmat = relationship("JmpMat", back_populates="iolp_dev_info", uselist=False)
+    jmpmat = relationship("JmpMat", back_populates="iolp_dev_info")
 
 class IolpDevConfig(Base):
     __tablename__ = "iolp_dev_config"
@@ -26,14 +26,15 @@ class IolpDevConfig(Base):
 class IolpDevState(Base):
     __tablename__ = "iolp_dev_state"
     sn = Column(String(50), ForeignKey("device_info.sn"), primary_key=True)
-    recordId = Column(Integer, nullable=False)
-    health_point = Column(Integer)
-    warnings = Column(String(255))
-    crisis = Column(String(255))
-    warnlog_url = Column(String(255))
-    crislog_url = Column(String(255))
-    rawfile_url = Column(String(255))
-    opt_pow_mean = Column(Float)
-    opt_pow_var = Column(Float)
-    opt_pow_max = Column(Float)
-    opt_pow_min = Column(Float)
+    recordId = Column(Integer, primary_key=True)
+    health_point = Column(Integer, nullable=False)
+    warnings = Column(String(255), nullable=True)
+    crisis = Column(String(255), nullable=True)
+    warnlog_url = Column(String(255), nullable=True)
+    crislog_url = Column(String(255), nullable=True)
+    rawfile_url = Column(String(255), nullable=True)
+    opt_pow_mean = Column(Float, nullable=False)
+    opt_pow_var = Column(Float, nullable=False)
+    opt_pow_max = Column(Float, nullable=False)
+    opt_pow_min = Column(Float, nullable=False)
+    device_info = relationship("DeviceInfo", back_populates="iolp_state")

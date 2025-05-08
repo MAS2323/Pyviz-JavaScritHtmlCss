@@ -26,7 +26,7 @@ const CameraInfo = () => {
 
         setCameraInfo({
           height: `高度: ${height} km`,
-          coords: `纬度: ${latitude}°N, Longitud: ${longitude}°E`,
+          coords: `纬度: ${latitude}°N, 长度: ${longitude}°E`,
         });
       } catch (error) {
         console.error("Error updating camera info:", error);

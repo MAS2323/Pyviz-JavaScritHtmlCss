@@ -5,7 +5,7 @@ import base64
 
 # Esquema base para entrada de control frame
 class ControlFrameBase(BaseModel):
-    cmdFlg: int = Field(..., description="Identificador del tipo de mensaje (2=traffstub, 3=SDH, 4=IOLP, 5=jmpmat, 6=fibcab, 128-135=reset reports, 176-182=events)")
+    cmdFlg: int = Field(..., description="Identificador del tipo de mensaje (1=ida, 2=vuelta, 3=SDH, 4=IOLP, 5=jmpmat, 6=fibcab, 128-135=reset reports, 176-182=events)")
     gId: int = Field(..., description="ID del dispositivo receptor")
     param: int = Field(..., description="Parámetro o Tag del mensaje")
 

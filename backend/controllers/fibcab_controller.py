@@ -5,6 +5,7 @@ from schemas.fibcab_schemas import FibcabDevInfoSchema, FibcabDevConfigSchema, F
 from sqlalchemy.orm import joinedload
 from typing import List, Dict, Optional
 from math import radians, sin, cos, sqrt, atan2
+
 # Crear un registro en fibcab_dev_info
 def create_fibcab_dev_info(db: Session, fibcab_dev_info: FibcabDevInfoSchema):
     db_fibcab_info = FibcabDevInfo(**fibcab_dev_info.dict())
@@ -51,20 +52,15 @@ def get_fibcab_dev_state(db: Session, sn: str):
         raise HTTPException(status_code=404, detail="FIBCAB device state not found")
     return db_fibcab_state
 
-
 # Obtener fibras relacionadas con un dispositivo
-# def get_fibcabs_for_device(db: Session, device_sn: str):
-#     fibcabs = db.query(FibcabDevInfo).filter(
-#         (FibcabDevInfo.source_sn == device_sn) | (FibcabDevInfo.target_sn == device_sn)
-#     ).all()
-#     return fibcabs
 def get_fibcabs_for_device(db: Session, device_sn: str):
     # Obtener todas las fibras relacionadas con el dispositivo
     fibcabs = (
         db.query(FibcabDevInfo)
         .options(
             joinedload(FibcabDevInfo.source_node),  # Cargar el nodo de origen
-            joinedload(FibcabDevInfo.target_node)   # Cargar el nodo de destino
+            joinedload(FibcabDevInfo.target_node),  # Cargar el nodo de destino
+            joinedload(FibcabDevInfo.state)         # Cargar la relación state
         )
         .filter((FibcabDevInfo.source_sn == device_sn) | (FibcabDevInfo.target_sn == device_sn))
         .all()
@@ -73,6 +69,8 @@ def get_fibcabs_for_device(db: Session, device_sn: str):
     # Formatear los datos para incluir las coordenadas geográficas
     fibcab_data = []
     for fibcab in fibcabs:
+        # Manejar fibcab.state como una lista
+        state = fibcab.state[0] if fibcab.state and isinstance(fibcab.state, list) else fibcab.state
         fibcab_data.append({
             "sn": fibcab.sn,
             "source_sn": fibcab.source_sn,
@@ -81,7 +79,7 @@ def get_fibcabs_for_device(db: Session, device_sn: str):
             "source_latitude": fibcab.source_node.lattitude if fibcab.source_node else None,
             "target_longitude": fibcab.target_node.longitude if fibcab.target_node else None,
             "target_latitude": fibcab.target_node.lattitude if fibcab.target_node else None,
-            "health_point": fibcab.state.health_point if fibcab.state else None,
+            "health_point": state.health_point if state else None,
         })
 
     return fibcab_data
@@ -92,9 +90,6 @@ def get_fibcab_dev_info(db: Session, sn: str):
     if not fibcab:
         raise HTTPException(status_code=404, detail="Fibcab dev info not found")
     return fibcab
-
-
-
 
 # Constante para el radio de la Tierra en kilómetros
 EARTH_RADIUS_KM = 6371.0
@@ -161,8 +156,7 @@ def calculate_fibcab_parameters(db: Session, fibcab_sn: str):
         "connector_loss_db": connector_loss,
         "splice_loss_db": splice_loss,
         "attenuation_coefficient_db_per_km": attenuation_coefficient,
-}
-
+    }
 
 def identify_bottlenecks(db: Session, device_sn: Optional[str] = None, threshold: float = 0.6) -> List[Dict]:
     """
@@ -204,15 +198,13 @@ def calculate_health_score(warnings, crises):
     health_score = 100 - (warnings * 5) - (crises * 10)
     return max(health_score, 0)  # Evita valores negativos
 
-
-
 # Obtener todos los registros de fibcab_dev_info
 def get_all_fibcab_dev_info(db: Session):
     return db.query(FibcabDevInfo).options(
         joinedload(FibcabDevInfo.source_node),
         joinedload(FibcabDevInfo.target_node)
     ).all()
-    
+
 def get_fibcab_status(db: Session, sn: str):
     # Obtener fibcab info
     fibcab = db.query(FibcabDevInfo).filter(FibcabDevInfo.sn == sn).first()
@@ -226,7 +218,7 @@ def get_fibcab_status(db: Session, sn: str):
     usage = state.health_point or 0
     utilization_percentage = (usage / capacity * 100) if capacity > 0 else 0
 
-    fiber_color = "green"  
+    fiber_color = "green"
 
     if state.crisis:
         fiber_color = "red"
@@ -238,13 +230,11 @@ def get_fibcab_status(db: Session, sn: str):
         "name": fibcab.name,
         "source_sn": fibcab.source_sn,
         "target_sn": fibcab.target_sn,
-
         # Coordenadas
         "source_longitude": fibcab.source_node.longitude,
         "source_latitude": fibcab.source_node.lattitude,
         "target_longitude": fibcab.target_node.longitude,
         "target_latitude": fibcab.target_node.lattitude,
-
         # Estado
         "fiber_color": fiber_color,
         "usage_percentage": round(utilization_percentage, 2),

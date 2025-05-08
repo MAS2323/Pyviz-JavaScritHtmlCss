@@ -811,3 +811,34 @@ export function logoutUser() {
   localStorage.removeItem("token");
   localStorage.removeItem("userId");
 }
+
+// Función para obtener todos los control frames
+export const getControlFrames = async (skip = 0, limit = 100) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/control-frames/control_frames`,
+      {
+        params: { skip, limit },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.detail || "Error fetching control frames"
+    );
+  }
+};
+
+// Función para obtener los valores de un control frame específico
+export const getControlFrameValues = async (frameId) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/control-frames/control_frames/${frameId}/values`
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.detail || "Error fetching control frame values"
+    );
+  }
+};
