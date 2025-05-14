@@ -157,10 +157,10 @@ def calculate_fibcab_parameters(db: Session, fibcab_sn: str):
         "splice_loss_db": splice_loss,
         "attenuation_coefficient_db_per_km": attenuation_coefficient,
     }
-
-def identify_bottlenecks(db: Session, device_sn: Optional[str] = None, threshold: float = 0.6) -> List[Dict]:
+def identify_bottlenecks(db: Session, device_sn: Optional[str] = None, threshold: float = 0.75) -> List[Dict]:
     """
     Identifica cuellos de botella. Si se proporciona device_sn, filtra por ese dispositivo.
+    El umbral se ajusta a 0.75 (75%) para alinearse con el estado de alerta.
     """
     bottlenecks = []
 
@@ -179,33 +179,43 @@ def identify_bottlenecks(db: Session, device_sn: Optional[str] = None, threshold
         usage = fibcab_state.health_point or 0
         capacity = fibcab_config.ficab_capacity or 1  # Evitar división por cero
 
-        utilization_percentage = (usage / capacity) * 100
+        # Calcular el porcentaje de utilización como el complemento de health_point (salud restante)
+        utilization_percentage = min(100, 100 - usage)  # Limitar al 100% máximo
 
         if utilization_percentage > threshold * 100:
             bottlenecks.append({
                 "sn": fibcab.sn,
                 "usage": usage,
                 "capacity": capacity,
-                "utilization_percentage": round(utilization_percentage, 2)
+                "utilization_percentage": round(utilization_percentage, 2),
+                "status": "emergency" if utilization_percentage > 95 else "alert"  # Agregar estado para el frontend
             })
 
     return bottlenecks
 
-def calculate_health_score(warnings, crises):
+def calculate_health_score(warnings: int, crises: int) -> int:
     """
     Calcula el puntaje de salud basado en advertencias y crisis.
     """
     health_score = 100 - (warnings * 5) - (crises * 10)
     return max(health_score, 0)  # Evita valores negativos
 
-# Obtener todos los registros de fibcab_dev_info
-def get_all_fibcab_dev_info(db: Session):
+def get_all_fibcab_dev_info(db: Session) -> List[FibcabDevInfo]:
+    """
+    Obtener todos los registros de fibcab_dev_info con nodos fuente y destino.
+    """
     return db.query(FibcabDevInfo).options(
         joinedload(FibcabDevInfo.source_node),
         joinedload(FibcabDevInfo.target_node)
     ).all()
 
-def get_fibcab_status(db: Session, sn: str):
+def get_fibcab_status(db: Session, sn: str) -> Dict:
+    """
+    Obtiene el estado de un fibcab específico y asigna colores según el porcentaje de utilización.
+    - < 25%: Verde (normal)
+    - > 75%: Amarillo (alerta)
+    - > 95%: Rojo (emergencia)
+    """
     # Obtener fibcab info
     fibcab = db.query(FibcabDevInfo).filter(FibcabDevInfo.sn == sn).first()
     if not fibcab:
@@ -214,16 +224,21 @@ def get_fibcab_status(db: Session, sn: str):
     state = db.query(FibcabDevState).filter(FibcabDevState.sn == sn).first()
     config = db.query(FibcabDevConfig).filter(FibcabDevConfig.sn == sn).first()
 
+    # Calcular el porcentaje de utilización como el complemento de health_point
     capacity = config.ficab_capacity if config else 62
     usage = state.health_point or 0
-    utilization_percentage = (usage / capacity * 100) if capacity > 0 else 0
+    utilization_percentage = min(100, 100 - usage)  # Limitar al 100% máximo
 
-    fiber_color = "green"
-
-    if state.crisis:
-        fiber_color = "red"
-    elif state.warnings:
-        fiber_color = "yellow"
+    # Determinar el color y estado basado en el porcentaje de utilización
+    if utilization_percentage > 95:
+        fiber_color = "red"  # Emergencia
+        status = "emergency"
+    elif utilization_percentage > 75:
+        fiber_color = "yellow"  # Alerta
+        status = "alert"
+    else:
+        fiber_color = "green"  # Normal
+        status = "normal"
 
     return {
         "sn": fibcab.sn,
@@ -237,7 +252,8 @@ def get_fibcab_status(db: Session, sn: str):
         "target_latitude": fibcab.target_node.lattitude,
         # Estado
         "fiber_color": fiber_color,
+        "status": status,
         "usage_percentage": round(utilization_percentage, 2),
-        "warnings": state.warnings,
-        "crises": state.crisis,
+        "warnings": state.warnings if state else None,
+        "crises": state.crisis if state else None,
     }
