@@ -67,8 +67,8 @@ const FloatingButtons = ({
               }`}
               onClick={() => handleViewChange("chinese", "cia_w")}
             >
-              <i className="fas fa-language"></i>
-              <span>Chino</span>
+              <i className="fas fa-layer-group"></i>
+              <span>地图层</span>
               {chineseViewOpacity && (
                 <span className="opacity-badge">不透明</span>
               )}

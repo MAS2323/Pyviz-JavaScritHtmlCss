@@ -10,7 +10,7 @@ from routers.pyviz_router import pyviz_router
 from routers.control_frame_router import control_frame_router
 from routers.tianditu_proxy import router as tianditu_router
 from routers.user_router import users_router
-
+from routers.cpu_router import cpu_router
 from database import Base, engine
 
 # Crear todas las tablas en la base de datos
@@ -45,7 +45,7 @@ app.include_router(pyviz_router)
 app.include_router(control_frame_router)
 app.include_router(tianditu_router)
 app.include_router(users_router)
-
+app.include_router(cpu_router)
 # Ruta de bienvenida
 @app.get("/")
 def read_root():
