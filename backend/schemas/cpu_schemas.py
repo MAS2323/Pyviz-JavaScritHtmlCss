@@ -1,10 +1,12 @@
-# schemas/cpu_schemas.py
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Dict, Any
 
 class CPUMeasurementResponse(BaseModel):
-    task_result: dict
+    task_result: Dict[str, Any]
     cpu_usage: List[float]
     max_cpu_usage: float
     avg_cpu_usage: float
-    cpu_usage_plot: Optional[str] = None  # Base64 image
+    cpu_usage_plot: str
+
+    class Config:
+        from_attributes = True  # Updated from orm_mode

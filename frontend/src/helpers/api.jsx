@@ -842,3 +842,13 @@ export const getControlFrameValues = async (frameId) => {
     );
   }
 };
+
+export const fetchCpuUsage = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/cpu/measure`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching CPU usage:", error.message);
+    throw new Error("Failed to fetch CPU usage data");
+  }
+};

@@ -3,6 +3,7 @@ import { useCesium } from "../../CesiumContext";
 import FileMenu from "../pages/FileMenu";
 import ViewMenu from "../pages/ViewMenu";
 import UserMenu from "../pages/UserMenu";
+import CpuViewer from "../pages/CpuViewer";
 import "./styles/Toolbar.css";
 
 const Toolbar = ({ viewer, isMobile, onLogout }) => {
@@ -75,15 +76,16 @@ const Toolbar = ({ viewer, isMobile, onLogout }) => {
       User: (
         <UserMenu closeMenu={() => setActiveMenu(null)} onLogout={onLogout} />
       ),
+      cpu: <CpuViewer closeMenu={() => setActiveMenu(null)} />,
     };
     return menus[activeMenu] || null;
   };
 
-  // Definir traducciones para los menús
   const menuTranslations = {
     file: { en: "File", zh: "文件" },
     view: { en: "View", zh: "视图" },
     User: { en: "User", zh: "用户" },
+    cpu: { en: "CPU", zh: "CPU使用率" },
   };
 
   return (
@@ -107,7 +109,7 @@ const Toolbar = ({ viewer, isMobile, onLogout }) => {
       </div>
 
       <div className="toolbar-menu">
-        {["file", "view", "User"].map((menu) => (
+        {["file", "view", "cpu", "User"].map((menu) => (
           <button key={menu} onClick={() => toggleMenu(menu)}>
             {menuTranslations[menu].zh} ({menuTranslations[menu].en})
           </button>
