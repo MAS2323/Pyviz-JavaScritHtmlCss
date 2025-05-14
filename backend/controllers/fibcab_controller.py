@@ -159,8 +159,12 @@ def calculate_fibcab_parameters(db: Session, fibcab_sn: str):
     }
 def identify_bottlenecks(db: Session, device_sn: Optional[str] = None, threshold: float = 0.75) -> List[Dict]:
     """
-    Identifica cuellos de botella. Si se proporciona device_sn, filtra por ese dispositivo.
-    El umbral se ajusta a 0.75 (75%) para alinearse con el estado de alerta.
+    Identifica cuellos de botella y devuelve el estado de las fibras.
+    Si se proporciona device_sn, filtra por ese dispositivo.
+    Devuelve todas las fibras con su estado, alineado con get_fibcab_status:
+    - < 25%: Verde (normal)
+    - > 75%: Amarillo (alerta)
+    - > 95%: Rojo (emergencia)
     """
     bottlenecks = []
 
@@ -179,20 +183,31 @@ def identify_bottlenecks(db: Session, device_sn: Optional[str] = None, threshold
         usage = fibcab_state.health_point or 0
         capacity = fibcab_config.ficab_capacity or 1  # Evitar división por cero
 
-        # Calcular el porcentaje de utilización como el complemento de health_point (salud restante)
-        utilization_percentage = min(100, 100 - usage)  # Limitar al 100% máximo
+        # Calcular el porcentaje de utilización como (health_point / capacity) * 100
+        utilization_percentage = (usage / capacity) * 100 if capacity > 0 else 0
 
-        if utilization_percentage > threshold * 100:
-            bottlenecks.append({
-                "sn": fibcab.sn,
-                "usage": usage,
-                "capacity": capacity,
-                "utilization_percentage": round(utilization_percentage, 2),
-                "status": "emergency" if utilization_percentage > 95 else "alert"  # Agregar estado para el frontend
-            })
+        # Determinar el color y estado basado en el porcentaje de utilización
+        if utilization_percentage > 95:
+            fiber_color = "red"  # Emergencia
+            status = "emergency"
+        elif utilization_percentage > 75:
+            fiber_color = "yellow"  # Alerta
+            status = "alert"
+        else:
+            fiber_color = "green"  # Normal
+            status = "normal"
+
+        # Siempre incluir la fibra en la respuesta, independientemente del estado
+        bottlenecks.append({
+            "sn": fibcab.sn,
+            "usage": usage,
+            "capacity": capacity,
+            "utilization_percentage": round(utilization_percentage, 2),
+            "status": status,  # Alinear con get_fibcab_status
+            "fiber_status": fiber_color  # Alinear con frontend
+        })
 
     return bottlenecks
-
 def calculate_health_score(warnings: int, crises: int) -> int:
     """
     Calcula el puntaje de salud basado en advertencias y crisis.
@@ -224,10 +239,10 @@ def get_fibcab_status(db: Session, sn: str) -> Dict:
     state = db.query(FibcabDevState).filter(FibcabDevState.sn == sn).first()
     config = db.query(FibcabDevConfig).filter(FibcabDevConfig.sn == sn).first()
 
-    # Calcular el porcentaje de utilización como el complemento de health_point
+    # Calcular el porcentaje de utilización como (health_point / capacity) * 100
     capacity = config.ficab_capacity if config else 62
     usage = state.health_point or 0
-    utilization_percentage = min(100, 100 - usage)  # Limitar al 100% máximo
+    utilization_percentage = (usage / capacity) * 100 if capacity > 0 else 0  # Evitar división por cero
 
     # Determinar el color y estado basado en el porcentaje de utilización
     if utilization_percentage > 95:
