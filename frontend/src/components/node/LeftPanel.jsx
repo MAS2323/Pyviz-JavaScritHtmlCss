@@ -1,10 +1,17 @@
-import React, { useEffect, useState } from "react";
+// components/LeftPanel.js
+import React, { useEffect, useState, useCallback } from "react";
 import {
   fetchIolpInfo,
   fetchIolpConfig,
   fetchIolpState,
+  fetchSdhInfo,
+  fetchSdhConfig,
+  fetchSdhState,
 } from "../../helpers/api";
-import Popup from "./components/Popup"; 
+import IolpSection from "./IolpSection";
+import SdhSection from "./SdhSection";
+import Popup from "./components/Popup";
+// import "./LeftPanel.css";
 
 const LeftPanel = ({ data, onClose }) => {
   const [iolpData, setIolpData] = useState({
@@ -12,196 +19,81 @@ const LeftPanel = ({ data, onClose }) => {
     config: null,
     state: null,
   });
-  const [loading, setLoading] = useState(false);
-  const [popupData, setPopupData] = useState(null); 
+  const [sdhData, setSdhData] = useState({
+    info: null,
+    config: null,
+    state: null,
+  });
+  const [loading, setLoading] = useState({
+    iolp: false,
+    sdh: false,
+  });
+  const [popupData, setPopupData] = useState(null);
 
-  useEffect(() => {
+  const fetchAllData = useCallback(async () => {
     if (!data?.sn) return;
 
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [info, config, state] = await Promise.all([
-          fetchIolpInfo(data.sn),
-          fetchIolpConfig(data.sn),
-          fetchIolpState(data.sn),
+    setLoading({ iolp: true, sdh: true });
+
+    try {
+      const [iolpInfo, iolpConfig, iolpState, sdhInfo, sdhConfig, sdhState] =
+        await Promise.all([
+          fetchIolpInfo(data.sn).catch((err) => {
+            console.error("获取IOLP信息错误:", err);
+            return null;
+          }),
+          fetchIolpConfig(data.sn).catch((err) => {
+            console.error("获取IOLP配置错误:", err);
+            return null;
+          }),
+          fetchIolpState(data.sn).catch((err) => {
+            console.error("获取IOLP状态错误:", err);
+            return null;
+          }),
+          fetchSdhInfo(data.sn).catch((err) => {
+            console.error("获取SDH信息错误:", err);
+            return null;
+          }),
+          fetchSdhConfig(data.sn).catch((err) => {
+            console.error("获取SDH配置错误:", err);
+            return null;
+          }),
+          fetchSdhState(data.sn).catch((err) => {
+            console.error("获取SDH状态错误:", err);
+            return null;
+          }),
         ]);
-        setIolpData({ info, config, state });
-      } catch (error) {
-        console.error("获取IOLP数据错误:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+
+      setIolpData({ info: iolpInfo, config: iolpConfig, state: iolpState });
+      setSdhData({ info: sdhInfo, config: sdhConfig, state: sdhState });
+    } catch (error) {
+      console.error("获取数据错误:", error);
+    } finally {
+      setLoading({ iolp: false, sdh: false });
+    }
   }, [data?.sn]);
 
-  const renderIolpSection = () => {
-    if (!iolpData.info && !iolpData.config && !iolpData.state) return null;
-
-    return (
-      <div style={{ marginBottom: "20px" }}>
-        <h4
-          style={{
-            margin: "0 0 10px 0",
-            color: "#3498db",
-            fontSize: "1rem",
-          }}
-        >
-          IOLP信息
-        </h4>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "8px",
-          }}
-        >
-          {/* 基本信息 */}
-          <div
-            style={{ fontWeight: "bold", color: "#7f8c8d", fontSize: "0.9rem" }}
-          >
-            标签ID:
-          </div>
-          <div style={{ wordBreak: "break-word", fontSize: "0.9rem" }}>
-            {iolpData.info?.tagId || "N/A"}
-          </div>
-
-          {/* 配置信息 */}
-          <div
-            style={{ fontWeight: "bold", color: "#7f8c8d", fontSize: "0.9rem" }}
-          >
-            激活线对:
-          </div>
-          <div style={{ wordBreak: "break-word", fontSize: "0.9rem" }}>
-            {iolpData.config?.actived_pairs || "N/A"}
-          </div>
-
-          <div
-            style={{ fontWeight: "bold", color: "#7f8c8d", fontSize: "0.9rem" }}
-          >
-            未激活线对:
-          </div>
-          <div style={{ wordBreak: "break-word", fontSize: "0.9rem" }}>
-            {iolpData.config?.inactived_pairs || "N/A"}
-          </div>
-
-          {/* 状态信息 */}
-          <div
-            style={{ fontWeight: "bold", color: "#7f8c8d", fontSize: "0.9rem" }}
-          >
-            健康指数:
-          </div>
-          <div style={{ wordBreak: "break-word", fontSize: "0.9rem" }}>
-            {iolpData.state?.health_point !== undefined
-              ? `${iolpData.state.health_point}%`
-              : "N/A"}
-          </div>
-
-          <div
-            style={{ fontWeight: "bold", color: "#7f8c8d", fontSize: "0.9rem" }}
-          >
-            平均光功率:
-          </div>
-          <div style={{ wordBreak: "break-word", fontSize: "0.9rem" }}>
-            {iolpData.state?.opt_pow_mean !== undefined
-              ? `${iolpData.state.opt_pow_mean} dBm`
-              : "N/A"}
-          </div>
-
-          {/* 日志链接 */}
-          {iolpData.state?.warnlog_url && (
-            <>
-              <div
-                style={{
-                  fontWeight: "bold",
-                  color: "#7f8c8d",
-                  fontSize: "0.9rem",
-                }}
-              >
-                告警日志:
-              </div>
-              <div style={{ wordBreak: "break-word", fontSize: "0.9rem" }}>
-                <span
-                  style={{ cursor: "pointer", color: "#3498db" }}
-                  onClick={() =>
-                    setPopupData({
-                      title: "告警日志",
-                      content: (
-                        <>
-                          <p>告警日志链接: {iolpData.state.warnlog_url}</p>
-                          <a
-                            href={iolpData.state.warnlog_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            查看日志
-                          </a>
-                        </>
-                      ),
-                    })
-                  }
-                >
-                  查看
-                </span>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    );
-  };
+  useEffect(() => {
+    fetchAllData();
+  }, [fetchAllData]);
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: "70px",
-        left: "20px",
-        width: "450px",
-        background: "#1a1a1a",
-        borderRadius: "8px",
-        boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-        padding: "15px",
-        zIndex: 1000,
-        maxHeight: "80vh",
-        overflowY: "auto",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h3 style={{ margin: 0, color: "#2c3e50" }}>
-          IOLP详情 - {data?.sn || ""}
-        </h3>
-        <button
-          onClick={onClose}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "1.2rem",
-            color: "#7f8c8d",
-          }}
-        >
+    <div className="left-panel">
+      <div className="left-panel-header">
+        <h3>节点详情 - {data?.sn || ""}</h3>
+        <button onClick={onClose} className="close-button">
           ×
         </button>
       </div>
 
-      <hr style={{ margin: "10px 0", borderColor: "#eee" }} />
+      <hr className="divider" />
 
-      {loading && (
-        <div style={{ textAlign: "center", padding: "10px", color: "#7f8c8d" }}>
-          正在加载IOLP信息...
-        </div>
+      {(loading.iolp || loading.sdh) && (
+        <div className="loading">正在加载信息...</div>
       )}
 
-      {renderIolpSection()}
+      <IolpSection iolpData={iolpData} setPopupData={setPopupData} />
+      <SdhSection sdhData={sdhData} setPopupData={setPopupData} />
 
       {popupData && (
         <Popup

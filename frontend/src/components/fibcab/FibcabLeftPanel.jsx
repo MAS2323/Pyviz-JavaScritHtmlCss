@@ -236,7 +236,7 @@ const FibcabLeftPanel = ({ data, onClose }) => {
           capacity={fibcabParams.fibcab_capacity}
           health={fibcabState.health_point}
           usage_percentage={fiberStatus.usage_percentage}
-          fiber_status={fiberStatus.status} // Usar status para consistencia
+          fiber_status={fiberStatus.fiber_color} // Usar status para consistencia
         />
       )}
 

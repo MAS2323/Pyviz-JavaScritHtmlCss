@@ -1,3 +1,88 @@
+/* LeftPanel.css */
+
+/* Estilos para el contenedor principal */
+.left-panel {
+  position: fixed;
+  top: 70px;
+  left: 20px;
+  width: 450px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  z-index: 1000;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.left-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left-panel-header h3 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #7f8c8d;
+}
+
+.divider {
+  margin: 10px 0;
+  border-color: #eee;
+}
+
+.loading {
+  text-align: center;
+  padding: 10px;
+  color: #7f8c8d;
+}
+
+/* Estilos para las secciones (IOLP y SDH) */
+.section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  margin: 0 0 10px 0;
+  color: #3498db;
+  font-size: 1rem;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.label {
+  font-weight: bold;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.value {
+  word-break: break-word;
+  font-size: 0.9rem;
+}
+
+.link {
+  cursor: pointer;
+  color: #3498db;
+}
+
+.link:hover {
+  color: #2980b9;
+}
+
+/* Estilos para el Popup */
 .popup-overlay {
   position: fixed;
   top: 0;
