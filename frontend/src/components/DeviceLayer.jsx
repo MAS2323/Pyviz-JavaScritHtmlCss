@@ -16,6 +16,7 @@ const FiberColors = {
   red: Cesium.Color.RED.withAlpha(0.7),
   green: Cesium.Color.LIME.withAlpha(0.7),
 };
+
 const DeviceLayer = () => {
   const { viewer } = useCesium();
   const [selectedEntity, setSelectedEntity] = useState(null);
@@ -104,6 +105,11 @@ const DeviceLayer = () => {
 
     // Forza la actualización del color
     entity.polyline.material = FiberColors[color] || FiberColors.green;
+
+    // Actualiza el color de la flecha si existe
+    if (entity.arrow) {
+      entity.arrow.label.fillColor = FiberColors[color] || FiberColors.green;
+    }
 
     // Opcional: muestra una notificación o log
     console.log(`Fibra ${entity.data.sn} actualizada a color: ${color}`);
@@ -208,11 +214,12 @@ const addFibcabEntity = async (viewer, fibcab) => {
     console.error(`Error obteniendo estado para ${fibcab.sn}:`, error);
   }
 
-  return viewer.entities.add({
+  // Crear la polilínea para la fibra
+  const polylineEntity = viewer.entities.add({
     polyline: {
       positions: [startPosition, endPosition],
       width: 5,
-      material: FiberColors[fiberColor], // 👈 Aquí usas el color
+      material: FiberColors[fiberColor],
       clampToGround: true,
     },
     data: {
@@ -220,6 +227,29 @@ const addFibcabEntity = async (viewer, fibcab) => {
       fiber_color: fiberColor,
     },
   });
+
+  // Añadir flecha para indicar dirección
+  const midPoint = Cesium.Cartesian3.midpoint(
+    startPosition,
+    endPosition,
+    new Cesium.Cartesian3()
+  );
+  viewer.entities.add({
+    position: midPoint,
+    label: {
+      text: "➔", // Símbolo de flecha para indicar dirección
+      font: "20px sans-serif",
+      fillColor: FiberColors[fiberColor],
+      horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+      verticalOrigin: Cesium.VerticalOrigin.CENTER,
+      disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+    },
+    arrow: true, // Marcador para identificar la flecha
+    parent: polylineEntity, // Vincular la flecha a la fibra
+  });
+
+  return polylineEntity;
 };
 
 const isValidCoordinate = (longitude, latitude) => {
